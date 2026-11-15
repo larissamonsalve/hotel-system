@@ -1,4 +1,4 @@
-name: CI do Hotel Serpa
+name: CI do Hotel System
 
 on:
   push:
@@ -10,6 +10,9 @@ jobs:
   build-and-test:
     name: Integracao Continua (Linter, Tests, Build)
     runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: "postgresql://postgres:senha_fake@localhost:5432/hotel_system_fake?schema=public"
 
     steps:
       - name: Checkout do código
@@ -23,6 +26,10 @@ jobs:
 
       - name: Instalar Dependências
         run: npm ci
+
+      # Passo adicionado para garantir que os tipos do banco de dados sejam criados antes do teste
+      - name: Gerar Prisma Client
+        run: npx prisma generate
 
       # Job 1: Linter - Verifica qualidade e padronização
       - name: Executar Linter
