@@ -98,8 +98,8 @@ MERCADOPAGO_WEBHOOK_SECRET=""
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/SEU_USUARIO/hotel-saas-system.git
-   cd hotel-saas-system
+   git clone https://github.com/larissamonsalve/hotel-system.git
+   cd hotel-system
    ```
 
 2. **Instale as dependências e inicie o banco de dados (Docker):**
@@ -138,6 +138,6 @@ O fluxo de **CI/CD** (GitHub Actions) bloqueia integrações na `main` caso as e
 Registra um lead na camada pública antes da validação OTP. Requer o Middleware de edge ativo para resolução do Tenant.
 * **Headers:** 
   * `Content-Type: application/json`
-  * `x-tenant-slug: hotel-serpa` (Injetado via Middleware Next.js)
+  * `x-tenant-slug: hotel-system` (Injetado via Middleware Next.js)
 * **Body:** `{"nome": "João", "email": "joao@email.com", "whatsapp": "92999999999"}`
 * **Respostas:** `201 Created` | `400 Bad Request` | `429 Too Many Requests`
