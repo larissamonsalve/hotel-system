@@ -53,6 +53,8 @@ model Hotel {
   nome         String
   cnpj         String        @unique
   ativo        Boolean       @default(true)
+  telefone  String? 
+  endereco  String?
   criadoEm     DateTime      @default(now())
   funcionarios Funcionario[]
   leads        Lead[]
