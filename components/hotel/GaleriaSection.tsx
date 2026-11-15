@@ -26,7 +26,7 @@ export default function GaleriaSection() {
   const duplicarArray = (arr: Foto[]) => [...arr, ...arr];
 
   return (
-    <section id="fotos" className="py-24 bg-gray-50 scroll-mt-16 overflow-hidden relative">
+    <section id="fotos" className="min-h-[100dvh] flex flex-col justify-center bg-gray-50 py-20 scroll-mt-16 overflow-hidden relative">
       <div className="container mx-auto px-6 mb-10 max-w-7xl">
         <p className="text-xs font-bold tracking-widest text-[#E55C42] uppercase mb-2">Nossos Ambientes</p>
         <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 tracking-tight">Galeria de Fotos</h2>

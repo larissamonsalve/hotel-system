@@ -39,7 +39,7 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
   };
 
   return (
-    <section id="acomodacoes" className="min-h-screen flex flex-col justify-center bg-gray-50 py-16 scroll-mt-16 relative">
+    <section id="acomodacoes" className="min-h-[100dvh] flex flex-col justify-center bg-gray-50 py-20 scroll-mt-16 relative">
       <div className="container mx-auto max-w-7xl px-6">
         <div className="mb-12 text-center md:text-left">
           <p className="text-xs font-bold tracking-widest text-[#E55C42] uppercase mb-2">Acomodações</p>
