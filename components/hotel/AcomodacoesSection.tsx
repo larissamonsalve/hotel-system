@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Wifi, Coffee, X, BedDouble, Users } from 'lucide-react';
+import { Wifi, Coffee } from 'lucide-react';
+import QuartoModal from './QuartoModal'; // <-- Importando o novo componente
 
 interface Quarto {
   id: string;
   tipo: string;
   capacidade: number;
   valorDiaria: number;
-  esgotado: boolean; // Nova propriedade para controlar o visual
+  esgotado: boolean;
 }
 
 const getDescricao = (tipo: string) => {
@@ -21,13 +22,12 @@ const getDescricao = (tipo: string) => {
   return `Acomodação estruturada para até ${tipo} hóspedes.`;
 };
 
-// Mapeamento exato dos nomes dos seus arquivos de imagem
 const getImagemQuarto = (tipo: string) => {
   const t = tipo.toLowerCase();
   if (t.includes('triplo')) return '/quarto-triplo.jpg';
   if (t.includes('casal')) return '/quarto-casal.jpg';
   if (t.includes('padrão') || t.includes('padrao')) return '/quarto-padrão.jpg';
-  return '/quarto-serpa.jpg'; // Usado para o Quarto Duplo
+  return '/quarto-serpa.jpg'; 
 };
 
 export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
@@ -61,7 +61,6 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
                   className={`object-cover transition-transform duration-700 ${quarto.esgotado ? 'grayscale' : 'group-hover:scale-110'}`} 
                 />
                 
-                {/* Badge de Esgotado OBRIGATÓRIO por cima da foto */}
                 {quarto.esgotado && (
                   <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-10 flex items-center justify-center">
                     <span className="bg-red-600 text-white font-black px-4 py-2 rounded-xl tracking-widest text-sm shadow-xl transform -rotate-12 border-2 border-red-500/50">
@@ -70,7 +69,6 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
                   </div>
                 )}
 
-                {/* Badge "Mais Reservado" só aparece se não estiver esgotado */}
                 {!quarto.esgotado && index === 0 && (
                   <div className="absolute top-3 left-3 bg-[#E55C42] text-white text-[10px] font-bold px-3 py-1.5 rounded-md shadow-md z-10 uppercase tracking-widest">
                     Mais reservado
@@ -78,6 +76,7 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
                 )}
               </div>
 
+              {/* Corpo do Card */}
               <div className="p-6 flex flex-col flex-1 relative z-20 bg-white">
                 <h3 className={`text-[1.3rem] font-bold tracking-tight mb-2 ${quarto.esgotado ? 'text-gray-500 line-through' : 'text-[#0f3c26]'}`}>
                   {quarto.tipo}
@@ -99,11 +98,11 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
                     </p>
                   </div>
                   
-                  {/* Troca de Botões caso o quarto esteja esgotado */}
+                  {/* Botões */}
                   <div className="flex gap-2 w-full mt-2">
                     {quarto.esgotado ? (
                       <button disabled className="w-full bg-gray-100 text-gray-400 text-xs font-bold py-3 px-2 rounded-xl text-center cursor-not-allowed">
-                        Indisponível para sua busca
+                        Indisponível
                       </button>
                     ) : (
                       <>
@@ -123,37 +122,15 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
         </div>
       </div>
 
-      {/* Modal de Detalhes do Quarto */}
+      {/* Renderização do Novo Componente de Modal */}
       {quartoSelecionado && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setQuartoSelecionado(null)}>
-          <div className="bg-white w-full max-w-2xl rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300 relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setQuartoSelecionado(null)} className="absolute top-4 right-4 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-[#E55C42] transition-colors">
-              <X className="w-5 h-5" />
-            </button>
-            <div className="h-64 relative w-full">
-              <Image src={getImagemQuarto(quartoSelecionado.tipo)} alt={quartoSelecionado.tipo} fill className="object-cover" />
-            </div>
-            <div className="p-8">
-              <h3 className="text-3xl font-bold text-[#0f3c26] mb-2">{quartoSelecionado.tipo}</h3>
-              <p className="text-gray-600 mb-6 text-lg">{getDescricao(quartoSelecionado.tipo)}</p>
-              
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100"><Users className="text-[#E55C42] w-6 h-6"/> <span className="font-medium text-sm">Até {quartoSelecionado.capacidade} Hóspedes</span></div>
-                <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100"><BedDouble className="text-[#E55C42] w-6 h-6"/> <span className="font-medium text-sm">Camas confortáveis</span></div>
-              </div>
-              
-              <div className="flex justify-between items-center pt-6 border-t border-gray-100">
-                <div>
-                  <p className="text-sm text-gray-500 uppercase tracking-widest font-bold mb-1">Tarifa Diária</p>
-                  <p className="text-3xl font-black text-gray-900">R$ {quartoSelecionado.valorDiaria.toFixed(2)}</p>
-                </div>
-                <button onClick={rolarParaSimulador} className="bg-[#0f3c26] hover:bg-[#E55C42] text-white font-bold py-4 px-8 rounded-xl transition-colors shadow-lg">
-                  Simular Reserva
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <QuartoModal 
+          quarto={quartoSelecionado}
+          imagem={getImagemQuarto(quartoSelecionado.tipo)}
+          descricao={getDescricao(quartoSelecionado.tipo)}
+          onClose={() => setQuartoSelecionado(null)}
+          onReservar={rolarParaSimulador}
+        />
       )}
     </section>
   );
