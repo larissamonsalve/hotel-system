@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Carrossel from './Carrossel';
-import { X, ZoomIn } from 'lucide-react';
+import { X, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 
 type Foto = {
   src: string;
@@ -11,9 +11,10 @@ type Foto = {
 };
 
 export default function GaleriaSection() {
-  const [imagemAmpliada, setImagemAmpliada] = useState<Foto | null>(null);
+  const [indexAmpliado, setIndexAmpliado] = useState<number | null>(null);
 
   const fotosGaleria: Foto[] = [
+    { src: '/frente-hotel-lateral.webp', label: 'Frente do Hotel' },
     { src: '/area-externa.jpg', label: 'Fachada' },
     { src: '/recepcao.avif', label: 'Recepção' },
     { src: '/sala-recepcao.webp', label: 'Salão de Espera' },
@@ -24,6 +25,23 @@ export default function GaleriaSection() {
   ];
   
   const duplicarArray = (arr: Foto[]) => [...arr, ...arr];
+
+  // Funções de Navegação do Lightbox
+  const proximaFoto = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Evita que o clique feche o modal
+    if (indexAmpliado !== null) {
+      setIndexAmpliado((indexAmpliado + 1) % fotosGaleria.length);
+    }
+  };
+
+  const fotoAnterior = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (indexAmpliado !== null) {
+      setIndexAmpliado((indexAmpliado - 1 + fotosGaleria.length) % fotosGaleria.length);
+    }
+  };
+
+  const fotoAtual = indexAmpliado !== null ? fotosGaleria[indexAmpliado] : null;
 
   return (
     <section id="fotos" className="min-h-[100dvh] flex flex-col justify-center bg-gray-50 py-20 scroll-mt-16 overflow-hidden relative">
@@ -36,8 +54,9 @@ export default function GaleriaSection() {
         {duplicarArray(fotosGaleria).map((foto, i) => (
           <div 
             key={i} 
-            onClick={() => setImagemAmpliada(foto)}
-            className="min-w-[75vw] md:min-w-[450px] h-[450px] relative rounded-3xl overflow-hidden shadow-sm border border-gray-200 snap-center group cursor-pointer"
+            // O operador % (módulo) garante que o índice corresponda à foto original, mesmo no array duplicado
+            onClick={() => setIndexAmpliado(i % fotosGaleria.length)}
+            className="min-w-[75vw] md:min-w-[450px] h-[380px] md:h-[450px] relative rounded-3xl overflow-hidden shadow-sm border border-gray-200 snap-center group cursor-pointer"
           >
             <Image src={foto.src} alt={foto.label} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
@@ -53,27 +72,47 @@ export default function GaleriaSection() {
         ))}
       </Carrossel>
 
-      {/* Lightbox Modal */}
-      {imagemAmpliada && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 backdrop-blur-md" onClick={() => setImagemAmpliada(null)}>
+      {/* Lightbox Modal com Navegação */}
+      {fotoAtual && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 backdrop-blur-md" onClick={() => setIndexAmpliado(null)}>
+          
+          {/* Botão Fechar */}
           <button 
-            onClick={() => setImagemAmpliada(null)} 
-            className="absolute top-6 right-6 z-20 text-white bg-white/10 p-3 rounded-full hover:bg-[#E55C42] transition-colors"
+            onClick={() => setIndexAmpliado(null)} 
+            className="absolute top-6 right-6 z-30 text-white bg-white/10 p-3 rounded-full hover:bg-[#E55C42] transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
+
+          {/* Botão Anterior */}
+          <button 
+            onClick={fotoAnterior}
+            className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 z-30 text-white bg-white/10 p-3 md:p-4 rounded-full hover:bg-[#E55C42] transition-all duration-300 hover:scale-110"
+          >
+            <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+          </button>
           
-          <div className="relative w-full max-w-5xl h-[80vh] flex items-center justify-center animate-in fade-in zoom-in duration-300">
+          {/* Imagem Central */}
+          <div className="relative w-full max-w-5xl h-[70vh] md:h-[80vh] flex items-center justify-center animate-in fade-in zoom-in duration-300">
             <Image 
-              src={imagemAmpliada.src} 
-              alt={imagemAmpliada.label} 
+              src={fotoAtual.src} 
+              alt={fotoAtual.label} 
               fill 
               className="object-contain" 
             />
-            <div className="absolute bottom-[-40px] text-center text-white/80 font-medium text-lg w-full tracking-wider">
-              {imagemAmpliada.label}
+            <div className="absolute -bottom-10 text-center text-white/80 font-medium text-lg w-full tracking-wider">
+              {fotoAtual.label} ({indexAmpliado! + 1} / {fotosGaleria.length})
             </div>
           </div>
+
+          {/* Botão Próximo */}
+          <button 
+            onClick={proximaFoto}
+            className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 z-30 text-white bg-white/10 p-3 md:p-4 rounded-full hover:bg-[#E55C42] transition-all duration-300 hover:scale-110"
+          >
+            <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+          </button>
+
         </div>
       )}
     </section>
