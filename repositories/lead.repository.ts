@@ -2,20 +2,31 @@ import prisma from '@/lib/prisma';
 import { CreateLeadDTO } from '@/schemas/lead.schema';
 
 export class LeadRepository {
-  async findByEmail(email: string) {
+  async findByEmail(hotelId: string, email: string) {
     return prisma.lead.findUnique({
-      where: { email },
+      where: {
+        hotelId_email: {
+          hotelId,
+          email,
+        },
+      },
     });
   }
 
-  async upsertLead(data: CreateLeadDTO) {
+  async upsertLead(hotelId: string, data: CreateLeadDTO) {
     return prisma.lead.upsert({
-      where: { email: data.email },
+      where: {
+        hotelId_email: {
+          hotelId,
+          email: data.email,
+        },
+      },
       update: {
         nome: data.nome,
         whatsapp: data.whatsapp,
       },
       create: {
+        hotelId,
         nome: data.nome,
         email: data.email,
         whatsapp: data.whatsapp,

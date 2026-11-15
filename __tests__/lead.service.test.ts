@@ -3,7 +3,7 @@ import { LeadRepository } from '@/repositories/lead.repository';
 
 jest.mock('@/repositories/lead.repository');
 
-describe('LeadService - Regras de Negócio', () => {
+describe('LeadService - Regras de Negócio Multi-Tenant', () => {
   let leadService: LeadService;
   let mockUpsertLead: jest.Mock;
 
@@ -15,7 +15,8 @@ describe('LeadService - Regras de Negócio', () => {
     leadService = new LeadService();
   });
 
-  it('deve registrar ou atualizar um lead e retornar os dados filtrados com sucesso', async () => {
+  it('deve registrar um lead e garantir o isolamento correto por tenant (hotelId)', async () => {
+    const mockHotelId = 'tenant-uuid-123';
     const inputData = {
       nome: 'Maria Silva',
       email: 'maria@exemplo.com',
@@ -23,7 +24,8 @@ describe('LeadService - Regras de Negócio', () => {
     };
 
     mockUpsertLead.mockResolvedValue({
-      id: 'uuid-1234',
+      id: 'lead-uuid-456',
+      hotelId: mockHotelId,
       nome: 'Maria Silva',
       email: 'maria@exemplo.com',
       whatsapp: '92991234567',
@@ -31,11 +33,14 @@ describe('LeadService - Regras de Negócio', () => {
       criadoEm: new Date(),
     });
 
-    const resultado = await leadService.registrarLead(inputData);
+    const resultado = await leadService.registrarLead(mockHotelId, inputData);
 
-    expect(mockUpsertLead).toHaveBeenCalledWith(inputData);
+    // Valida se o Service repassou o ID do tenant corretamente para o Repository
+    expect(mockUpsertLead).toHaveBeenCalledWith(mockHotelId, inputData);
+    
+    // Valida se a saída (DTO) continua segura e sem vazar o hotelId
     expect(resultado).toEqual({
-      id: 'uuid-1234',
+      id: 'lead-uuid-456',
       nome: 'Maria Silva',
       email: 'maria@exemplo.com',
       emailValidado: false,

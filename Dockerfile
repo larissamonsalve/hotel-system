@@ -1,5 +1,8 @@
 # Estágio 1: Dependências
 FROM node:20-alpine AS deps
+
+RUN apk add --no-cache openssl ca-certificates libc6-compat
+
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci

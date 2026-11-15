@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ---------------- ENUMS (Domínio de Status) ---------------- //
 enum CargoFuncionario {
   ADMIN
   RECEPCIONISTA
@@ -21,17 +20,17 @@ enum StatusQuarto {
 }
 
 enum StatusReserva {
-  PENDENTE          // Criada na Landing Page, aguardando pagamento
-  TAXA_RESERVA      // 30% pago via webhook (Mercado Pago), aguardando check-in
-  CONFIRMADA_BALCAO // Criada direto no balcão
-  EM_ANDAMENTO      // Check-in realizado (Hóspede no hotel)
-  FINALIZADA        // Check-out realizado (Conta quitada)
-  CANCELADA         // Cancelada pelo cliente ou painel
+  PENDENTE
+  TAXA_RESERVA
+  CONFIRMADA_BALCAO
+  EM_ANDAMENTO
+  FINALIZADA
+  CANCELADA
 }
 
 enum OrigemReserva {
-  ONLINE            // Landing Page
-  BALCAO            // Recepção
+  ONLINE
+  BALCAO
 }
 
 enum TipoPagamento {
@@ -48,32 +47,50 @@ enum MetodoPagamento {
   DINHEIRO
 }
 
-// ---------------- MODELOS ---------------- //
+model Hotel {
+  id           String        @id @default(uuid())
+  slug         String        @unique
+  nome         String
+  cnpj         String        @unique
+  ativo        Boolean       @default(true)
+  criadoEm     DateTime      @default(now())
+  funcionarios Funcionario[]
+  leads        Lead[]
+  quartos      Quarto[]
+  reservas     Reserva[]
+  pagamentos   Pagamento[]
+  consumos     Consumo[]
+}
 
 model Funcionario {
-  id         String           @id @default(uuid())
-  nome       String
-  email      String           @unique
-  senhaHash  String
-  cargo      CargoFuncionario @default(RECEPCIONISTA)
-  ativo      Boolean          @default(true)
-  criadoEm   DateTime         @default(now())
-
-  // Rastreabilidade de ações no painel
+  id                  String      @id @default(uuid())
+  hotelId             String
+  hotel               Hotel       @relation(fields: [hotelId], references: [id])
+  nome                String
+  email               String
+  senhaHash           String
+  cargo               CargoFuncionario @default(RECEPCIONISTA)
+  ativo               Boolean     @default(true)
+  criadoEm            DateTime    @default(now())
   reservasGerenciadas Reserva[]
   pagamentosRecebidos Pagamento[]
   consumosRegistrados Consumo[]
+
+  @@unique([hotelId, email])
 }
 
 model Lead {
   id            String    @id @default(uuid())
+  hotelId       String
+  hotel         Hotel     @relation(fields: [hotelId], references: [id])
   nome          String
-  email         String    @unique
+  email         String
   whatsapp      String
   emailValidado Boolean   @default(false)
   criadoEm      DateTime  @default(now())
-  
   reservas      Reserva[]
+
+  @@unique([hotelId, email])
 }
 
 model Otp {
@@ -88,76 +105,68 @@ model Otp {
 
 model Quarto {
   id          String       @id @default(uuid())
-  numero      String       @unique
-  tipo        String       // Ex: "Casal Standard", "Suíte Master"
+  hotelId     String
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  numero      String
+  tipo        String
   capacidade  Int
   valorDiaria Decimal      @db.Decimal(10, 2)
   status      StatusQuarto @default(DISPONIVEL)
-  
   reservas    Reserva[]
+
+  @@unique([hotelId, numero])
 }
 
 model Reserva {
-  id                 String        @id @default(uuid())
-  origem             OrigemReserva
-  status             StatusReserva @default(PENDENTE)
-
-  // Relacionamentos
-  leadId             String
-  lead               Lead          @relation(fields: [leadId], references: [id])
-  quartoId           String
-  quarto             Quarto        @relation(fields: [quartoId], references: [id])
-  
-  // Auditoria: Qual funcionário registrou o check-in/out ou criou a reserva balcão
-  funcionarioId      String?
-  funcionario        Funcionario?  @relation(fields: [funcionarioId], references: [id])
-
-  // Datas de Controle
-  checkInPrevisto    DateTime
-  checkOutPrevisto   DateTime
-  checkInReal        DateTime?
-  checkOutReal       DateTime?
-
-  // Financeiro da Reserva
-  valorTotal         Decimal       @db.Decimal(10, 2)
-  valorPago          Decimal       @default(0.00) @db.Decimal(10, 2)
-
-  criadoEm           DateTime      @default(now())
-  atualizadoEm       DateTime      @updatedAt
-
-  pagamentos         Pagamento[]
-  consumos           Consumo[]
+  id               String        @id @default(uuid())
+  hotelId          String
+  hotel            Hotel         @relation(fields: [hotelId], references: [id])
+  origem           OrigemReserva
+  status           StatusReserva @default(PENDENTE)
+  leadId           String
+  lead             Lead          @relation(fields: [leadId], references: [id])
+  quartoId         String
+  quarto           Quarto        @relation(fields: [quartoId], references: [id])
+  funcionarioId    String?
+  funcionario      Funcionario?  @relation(fields: [funcionarioId], references: [id])
+  checkInPrevisto  DateTime
+  checkOutPrevisto DateTime
+  checkInReal      DateTime?
+  checkOutReal     DateTime?
+  valorTotal       Decimal       @db.Decimal(10, 2)
+  valorPago        Decimal       @default(0.00) @db.Decimal(10, 2)
+  criadoEm         DateTime      @default(now())
+  atualizadoEm     DateTime      @updatedAt
+  pagamentos       Pagamento[]
+  consumos         Consumo[]
 }
 
 model Pagamento {
-  id             String          @id @default(uuid())
-  reservaId      String
-  reserva        Reserva         @relation(fields: [reservaId], references: [id])
-  
-  // Quem recebeu (Nulo se foi online via Mercado Pago)
-  funcionarioId  String?
-  funcionario    Funcionario?    @relation(fields: [funcionarioId], references: [id])
-
-  valor          Decimal         @db.Decimal(10, 2)
-  tipo           TipoPagamento
-  metodo         MetodoPagamento
-  referenciaExt  String?         // ID do Mercado Pago (para estornos/auditoria)
-  
-  criadoEm       DateTime        @default(now())
+  id            String          @id @default(uuid())
+  hotelId       String
+  hotel         Hotel           @relation(fields: [hotelId], references: [id])
+  reservaId     String
+  reserva       Reserva         @relation(fields: [reservaId], references: [id])
+  funcionarioId String?
+  funcionario   Funcionario?    @relation(fields: [funcionarioId], references: [id])
+  valor         Decimal         @db.Decimal(10, 2)
+  tipo          TipoPagamento
+  metodo        MetodoPagamento
+  referenciaExt String?
+  criadoEm      DateTime        @default(now())
 }
 
 model Consumo {
-  id             String       @id @default(uuid())
-  reservaId      String
-  reserva        Reserva      @relation(fields: [reservaId], references: [id])
-  
-  funcionarioId  String
-  funcionario    Funcionario  @relation(fields: [funcionarioId], references: [id])
-
-  descricao      String       // Ex: "Água sem gás", "Lavanderia"
-  quantidade     Int          @default(1)
-  valorUnitario  Decimal      @db.Decimal(10, 2)
-  valorTotal     Decimal      @db.Decimal(10, 2)
-  
-  criadoEm       DateTime     @default(now())
+  id            String      @id @default(uuid())
+  hotelId       String
+  hotel         Hotel       @relation(fields: [hotelId], references: [id])
+  reservaId     String
+  reserva       Reserva     @relation(fields: [reservaId], references: [id])
+  funcionarioId String
+  funcionario   Funcionario @relation(fields: [funcionarioId], references: [id])
+  descricao     String
+  quantidade    Int         @default(1)
+  valorUnitario Decimal     @db.Decimal(10, 2)
+  valorTotal    Decimal     @db.Decimal(10, 2)
+  criadoEm      DateTime    @default(now())
 }

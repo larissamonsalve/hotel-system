@@ -1,5 +1,5 @@
 import { LeadRepository } from '@/repositories/lead.repository';
-import { CreateLeadDTO, LeadResponseDTO } from '@/dtos/lead.dto';
+import { CreateLeadDTO } from '@/schemas/lead.schema';
 
 export class LeadService {
   private leadRepository: LeadRepository;
@@ -8,8 +8,8 @@ export class LeadService {
     this.leadRepository = new LeadRepository();
   }
 
-  async registrarLead(data: CreateLeadDTO): Promise<LeadResponseDTO> {
-    const lead = await this.leadRepository.upsertLead(data);
+  async registrarLead(hotelId: string, data: CreateLeadDTO) {
+    const lead = await this.leadRepository.upsertLead(hotelId, data);
 
     return {
       id: lead.id,
