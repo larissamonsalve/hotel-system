@@ -1,8 +1,10 @@
-# Sistema de Gestão - Hotel Serpa
+# Hotel System - Plataforma de Gestão Hoteleira Multi-Tenant
 
-Aplicação web full-stack desenvolvida para a gestão operacional, administrativa e financeira do **Hotel Serpa**. O sistema abrange desde a captação de hóspedes e reservas online com pagamento (30%) e emissão automática de voucher em PDF, até o controle completo de recepção (check-in, check-out, walk-in), rastreabilidade de equipe e auditoria financeira consolidada.
+Aplicação web full-stack desenvolvida em arquitetura **SaaS (Software as a Service) Multi-Tenant**. O sistema permite que múltiplos hotéis gerenciem suas operações de forma independente compartilhando a mesma infraestrutura. 
 
-Projetado com foco rigoroso em segurança (Zero Trust), arquitetura limpa, rastreabilidade e automação de testes e deploy.
+A plataforma abrange desde a captação de hóspedes e reservas online com pagamento de sinal (30%) e emissão automática de voucher em PDF, até o controle completo de recepção (check-in, check-out, walk-in), política de cancelamento (CDC) e auditoria financeira por estabelecimento.
+
+Projetado com foco rigoroso em segurança (*Zero Trust*), isolamento lógico de dados, rastreabilidade e automação de testes.
 
 ## Índice
 
@@ -17,169 +19,125 @@ Projetado com foco rigoroso em segurança (Zero Trust), arquitetura limpa, rastr
 9. [Testes Automatizados e CI/CD](#-testes-automatizados-e-cicd)
 10. [Documentação da API (Endpoints)](#-documentação-da-api-endpoints)
 
+---
+
 ## Arquitetura e Padrões de Projeto
 
-O backend da aplicação segue rigorosamente a separação de responsabilidades utilizando a arquitetura em camadas:
+O backend da aplicação segue rigorosamente a separação de responsabilidades e padrões de engenharia de software:
 
-* **Controller (`app/api/**/route.ts`):** Gerencia as requisições HTTP, verifica cabeçalhos (`Content-Type`), aplica controle de taxa (*Rate Limiting*) e trata exceções sem expor dados sensíveis do servidor.
-* **Validation & DTOs (`schemas/` e `dtos/`):** Validação estrita na fronteira da aplicação utilizando **Zod** (`.strict()`), sanitização contra *XSS* e controle explícito de contratos de entrada e saída (*Input/Output DTOs*).
-* **Service (`services/`):** Encapsula as regras de negócio da aplicação (cálculo de diárias e taxa de reserva de 30%, geração/validação de OTP, controle de disponibilidade de quartos, regras de check-in/check-out e emissão de voucher), isoladas da camada web e do banco de dados.
-* **Repository (`repositories/`):** Abstrai e isola as operações de persistência de dados utilizando o **Prisma ORM**.
+* **Isolamento Multi-Tenant Lógico:** Todos os hotéis compartilham o mesmo banco de dados, mas os registros são rigidamente isolados por uma chave estrangeira (`hotelId`).
+* **Middleware de Roteamento (Edge):** Interceptação de requisições por sub-rotas dinâmicas (ex: `/h/hotel-slug`), injetando o contexto do tenant de forma segura nos cabeçalhos HTTP (`x-tenant-slug`) para uso nas APIs.
+* **Unit of Work (Transações Atômicas):** O onboarding de novos hotéis ocorre de forma transacional (Prisma `$transaction`), garantindo que o Tenant e o Usuário Admin nasçam juntos ou sofram *rollback* automático.
+* **Validation & Zero Trust (`schemas/`):** Validação estrita na fronteira utilizando **Zod** (`.strict()`), sanitização contra *XSS* e isolamento de informações sensíveis via DTOs (ex: cálculo de tarifas feito exclusivamente no servidor).
 
 ---
 
 ## Perfis de Acesso e Regras de Negócio
 
-O sistema é dividido em três camadas de atuação:
+O sistema é dividido em três atuações (aplicáveis a cada Tenant isoladamente):
 
 ### 1. Cliente / Lead (Camada Pública — Landing Page)
-Focado na experiência de reserva autônoma e no funil de conversão (`Lead → OTP → Mercado Pago → Webhook → PDF`):
-* **Consulta e Simulação:** Visualização das acomodações, seleção de datas de check-in/check-out e cálculo automático (validado no servidor) do valor total da estadia e dos **30%** (taxa de reserva).
-* **Cadastro (Captação de Lead):** Coleta de nome completo, e-mail e WhatsApp para iniciar o fluxo.
-* **Validação de Identidade (OTP):** Envio de código de 6 dígitos por e-mail com tempo de expiração e limite de tentativas, exigido antes do acesso ao checkout.
-* **Pagamento Online (30%):** Checkout integrado ao Mercado Pago (Pix ou Cartão) referente a taxa da reserva.
-* **Recebimento do Comprovante:** Após confirmação assíncrona via Webhook, disparo automático por e-mail do **Voucher de Reserva em PDF**, detalhando o código do pedido, o sinal quitado (30%) e o saldo restante (70%) a ser pago no hotel.
+Focado no funil de conversão autônomo (`Lead → OTP → Mercado Pago → Webhook → PDF`):
+* **Simulação e Regras:** Cálculo automático do valor total e **30% de taxa de reserva**.
+* **Captação e Validação de Identidade (OTP):** Cadastro validado via código numérico (6 dígitos) enviado por e-mail, exigido antes do checkout.
+* **Pagamento Online e Comprovante:** Checkout via Mercado Pago para quitar a taxa. Confirmação via Webhook dispara o Voucher em PDF.
+* **Direito de Arrependimento:** Regra sistêmica que permite o cancelamento seguro da reserva em até **7 dias corridos** após a compra.
 
 ### 2. Funcionário / Recepcionista (Camada Restrita — Operação Diária)
-Focado no atendimento presencial, controle de ocupação e rastreabilidade:
-* **Autenticação e Auditoria:** Acesso restrito via login e senha próprios. Todas as movimentações de quartos, check-ins, check-outs e recebimentos ficam vinculadas ao ID do funcionário logado.
-* **Gestão de Reservas Antecipadas (Check-in):**
-  * Localização de reservas confirmadas pela Landing Page (status `SINAL_PAGO`).
-  * Registro de chegada do hóspede (Check-in), alterando o status da acomodação de `RESERVADO` para `OCUPADO`.
-  * Recebimento e baixa no sistema dos **70% restantes** da estadia (no check-in ou check-out).
-* **Atendimento sem Reserva Prévia (Walk-in):**
-  * Consulta ao mapa de quartos com status `DISPONÍVEL` para o período desejado.
-  * Cadastro rápido do hóspede no balcão, registro do pagamento presencial (integral ou parcial) e execução imediata do Check-in, bloqueando o quarto no banco de dados para evitar *overbooking* com o site.
-* **Encerramento e Consumo (Check-out):**
-  * Lançamento de consumos extras (frigobar, serviços adicionais) na conta do quarto.
-  * Finalização da estadia (Check-out) mediante quitação total dos valores pendentes e liberação do quarto para limpeza/disponibilidade.
+* **Auditoria Contínua:** Todas as movimentações (check-ins, check-outs e recebimentos) ficam vinculadas ao `id` do recepcionista logado.
+* **Check-in de Reserva Online:** Transição de `TAXA_RESERVA` para `EM_ANDAMENTO`, cobrando os **70% restantes** da estadia.
+* **Atendimento Walk-in (Balcão):** Criação de reserva com status `CONFIRMADA_BALCAO` para clientes sem reserva prévia, com bloqueio imediato do quarto contra *overbooking*.
+* **Check-out e Consumos:** Lançamento de extras (frigobar, restaurante) e encerramento da estadia mediante quitação total do saldo.
 
-### 3. Administrador (Camada Restrita — Gestão e Financeiro)
-Focado na visão estratégica do negócio e na auditoria dos dados:
-* **Gestão de Equipe e Acomodações:** Cadastro de funcionários, gerenciamento de permissões de acesso e atualização de tarifas de diárias ou disponibilidade de quartos.
-* **Auditoria de Leads e Funil:** Monitoramento completo dos leads captados (status de validação OTP, carrinhos abandonados e conversões concluídas).
-* **Controle Financeiro Consolidado:** Relatórios de faturamento segmentados por origem:
-  * **Receita Online (Mercado Pago):** Soma dos sinais de 30% validados via Webhook.
-  * **Receita Presencial (Balcão):** Soma dos saldos restantes (70%), reservas *walk-in* e consumos extras registrados pelos recepcionistas.
+### 3. Administrador / Gerente (Camada Restrita — Gestão e Financeiro)
+* **Onboarding e Equipe:** Configuração inicial do hotel, gestão de quartos, tarifas e permissões de recepcionistas.
+* **Auditoria de Funil:** Monitoramento da taxa de conversão (Leads criados vs. OTP validado vs. Carrinho Abandonado).
+* **Controle Financeiro Consolidado:** Separação exata entre Receita Online (Sinal Webhook) e Receita Presencial (Saldos, Walk-in e Consumos de Balcão).
 
 ---
 
 ## Tecnologias Utilizadas
 
-* **Frontend & Backend:** Next.js (App Router), React, TypeScript, Tailwind CSS
-* **Banco de Dados & ORM:** PostgreSQL, Prisma ORM (v6)
-* **Validação & Segurança:** Zod, Rate Limiting em memória, Hash criptográfico para OTP e controle de acesso
-* **Qualidade & Testes:** Jest, ESLint, GitHub Actions (CI/CD)
-* **Infraestrutura:** Docker e Docker Compose
-* **Integrações (Planejadas/Em curso):** Mercado Pago API, Serviço de E-mail Transacional, Google Analytics, Microsoft Clarity e Discord Webhooks.
+* **Ecosistema React:** Next.js (App Router), React, TypeScript, Tailwind CSS
+* **Persistência:** PostgreSQL, Prisma ORM (v6)
+* **Segurança:** Zod, Rate Limiting, Hash bcrypt (Senhas) e crypto (OTP)
+* **Testes & Qualidade:** Jest (integrado ao next/jest), ESLint, GitHub Actions
+* **Infraestrutura:** Docker, Docker Compose (Alpine base)
+* **Integrações (Em Desenvolvimento):** Mercado Pago, Resend/SendGrid, PDF Generator.
 
-## Funcionalidades Principais
-
-* [x] **Infraestrutura & CI/CD:** Pipeline automatizado rodando Linter, Testes Unitários e Build Check a cada `push` ou `pull_request`.
-* [x] **Modelagem de Dados Inicial:** Estruturação base no PostgreSQL com integridade referencial.
-* [x] **Captação Segura de Leads (`POST /api/leads`):** Registro e atualização de potenciais hóspedes com proteção contra spam, injeção de scripts e *Mass Assignment*.
-* [ ] **Portal e Landing Page Responsiva:** Apresentação das acomodações, consulta de disponibilidade e redirecionamento direto para atendimento via WhatsApp.
-* [ ] **Verificação de Identidade (OTP):** Envio e validação de código de 6 dígitos por e-mail com expiração e limite de tentativas para segurança nas reservas.
-* [ ] **Motor de Reservas e Pagamento:** Reserva online de quartos com cálculo seguro no servidor e integração via Webhook com o Mercado Pago.
-* [ ] **Operação Hoteleira (Check-in e Check-out):** Controle de entrada e saída de hóspedes, status de ocupação dos quartos e consumo.
-* [ ] **Painel Administrativo e Financeiro:** Gestão de acomodações, tarifas, histórico de reservas, relatórios de ocupação e controle financeiro.
+---
 
 ## Pré-requisitos
-
-Antes de começar, certifique-se de ter instalado em sua máquina:
 
 * [Node.js](https://nodejs.org/) (v20 ou superior)
 * [Docker](https://www.docker.com/) e Docker Compose
 * [Git](https://git-scm.com/)
 
+---
+
 ## Configuração do Ambiente (`.env`)
 
-Crie um arquivo `.env` na raiz do projeto baseado nas variáveis abaixo. **Nunca versione este arquivo no Git.**
+Crie um arquivo `.env` na raiz do projeto. **Nunca versione este arquivo.**
 
 ```env
 # Banco de Dados (PostgreSQL)
-DATABASE_URL="postgresql://postgres:senha_secreta@localhost:5432/hotel_serpa?schema=public"
+DATABASE_URL="postgresql://postgres:senha_secreta@localhost:5432/hotel_system?schema=public"
 
-# Chaves de Integração (Configurar nas etapas seguintes)
-NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY="sua_chave_publica_aqui"
-MERCADOPAGO_ACCESS_TOKEN="seu_access_token_privado_aqui"
-EMAIL_SERVICE_API_KEY="sua_chave_de_envio_de_email"
-DISCORD_WEBHOOK_URL="sua_url_webhook_para_alertas"
+# Segurança
+JWT_SECRET="chave_secreta_super_segura"
+
+# Integrações
+NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY=""
+MERCADOPAGO_ACCESS_TOKEN=""
+MERCADOPAGO_WEBHOOK_SECRET=""
 ```
 
-## Como Executar Localmente
+---
+
+## Como Executar (Ambiente de Desenvolvimento)
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/larissamonsalve/serpa-hotel-sistema.git
-   cd serpa-hotel-sistema
+   git clone https://github.com/SEU_USUARIO/hotel-saas-system.git
+   cd hotel-saas-system
    ```
 
-2. **Instale as dependências:**
+2. **Instale as dependências e inicie o banco de dados (Docker):**
    ```bash
    npm install
+   docker-compose up -d
    ```
 
-3. **Suba o banco de dados PostgreSQL via Docker:**
+3. **Gere os clientes e migre o banco de dados:**
    ```bash
-   docker-compose up -d db
-   ```
-
-4. **Execute as migrações do banco de dados:**
-   ```bash
+   npx prisma generate
    npx prisma migrate dev
    ```
 
-5. **Inicie o servidor de desenvolvimento:**
+4. **Inicie o servidor local:**
    ```bash
    npm run dev
    ```
 
-Acesse `http://localhost:3000` no seu navegador.
-
-## Como Executar com Docker
-
-Para simular o ambiente de produção completo (Aplicação Next.js em modo `standalone` + PostgreSQL):
-
-1. Certifique-se de que o Docker está ativo em sua máquina.
-2. Execute o comando na raiz do projeto:
-   ```bash
-   docker-compose up --build -d
-   ```
-3. A aplicação estará disponível em `http://localhost:3000`.
+---
 
 ## Testes Automatizados e CI/CD
 
-O projeto utiliza **Jest** integrado ao compilador do Next.js para validar as regras de negócio de forma isolada.
+O projeto utiliza **Jest** com suporte a tipagem nativa do Next.js. Os testes validam o isolamento Multi-Tenant injetando *mocks* do banco.
 
-* **Rodar os testes localmente:**
-  ```bash
-  npm run test
-  ```
-* **Verificar qualidade de código (Linter):**
-  ```bash
-  npm run lint
-  ```
-* **Pipeline CI/CD:** Configurado em `.github/workflows/ci.yml`. Toda alteração enviada ao repositório passa obrigatoriamente pelas etapas de *Lint*, *Unit Tests* e *Production Build*.
+* **Executar suíte de testes:** `npm run test`
+* **Verificar linting:** `npm run lint`
 
-## Documentação da API (Endpoints)
+O fluxo de **CI/CD** (GitHub Actions) bloqueia integrações na `main` caso as etapas de tipagem, testes unitários ou build falhem.
+
+---
+
+## Documentação da API (Principais Endpoints)
 
 ### `POST /api/leads`
-
-Registra ou atualiza um potencial hóspede (lead) no sistema.
-
-* **Headers:** `Content-Type: application/json`
-* **Rate Limit:** Máximo de 5 requisições por minuto por IP.
-* **Corpo da Requisição (JSON):**
-  ```json
-  {
-    "nome": "João Silva",
-    "email": "joao.silva@exemplo.com",
-    "whatsapp": "92999999999"
-  }
-  ```
-* **Respostas:**
-  * `201 Created`: Lead registrado/atualizado com sucesso.
-  * `400 Bad Request`: Falha na validação dos campos (detalhes retornados no array `details`).
-  * `415 Unsupported Media Type`: Cabeçalho `Content-Type` inválido.
-  * `429 Too Many Requests`: Limite de tentativas excedido.
+Registra um lead na camada pública antes da validação OTP. Requer o Middleware de edge ativo para resolução do Tenant.
+* **Headers:** 
+  * `Content-Type: application/json`
+  * `x-tenant-slug: hotel-serpa` (Injetado via Middleware Next.js)
+* **Body:** `{"nome": "João", "email": "joao@email.com", "whatsapp": "92999999999"}`
+* **Respostas:** `201 Created` | `400 Bad Request` | `429 Too Many Requests`
