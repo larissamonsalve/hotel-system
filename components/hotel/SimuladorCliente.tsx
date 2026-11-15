@@ -1,15 +1,31 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Calendar, User, ArrowRight, Check, ShieldCheck, Zap } from 'lucide-react';
 
 export default function SimuladorCliente() {
-  const [dataCheckIn, setDataCheckIn] = useState<string>('');
-  const [dataCheckOut, setDataCheckOut] = useState<string>('');
-  const [hospedes, setHospedes] = useState<string>('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const scrollToQuartos = () => {
-    document.getElementById('acomodacoes')?.scrollIntoView({ behavior: 'smooth' });
+  // Mantém os dados no formulário caso o usuário já tenha pesquisado
+  const [dataCheckIn, setDataCheckIn] = useState<string>(searchParams.get('checkin') || '');
+  const [dataCheckOut, setDataCheckOut] = useState<string>(searchParams.get('checkout') || '');
+  const [hospedes, setHospedes] = useState<string>(searchParams.get('hospedes') || '');
+
+  const buscarQuartos = () => {
+    // 1. Cria a URL com os filtros
+    const params = new URLSearchParams();
+    if (dataCheckIn) params.set('checkin', dataCheckIn);
+    if (dataCheckOut) params.set('checkout', dataCheckOut);
+    if (hospedes) params.set('hospedes', hospedes);
+
+    // 2. Atualiza a página com os filtros e rola suavemente para os quartos
+    router.push(`?${params.toString()}#acomodacoes`, { scroll: false });
+    
+    setTimeout(() => {
+      document.getElementById('acomodacoes')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   return (
@@ -61,7 +77,7 @@ export default function SimuladorCliente() {
         <div className="w-full md:w-1/4 mt-2 md:mt-0">
           <button 
             type="button"
-            onClick={scrollToQuartos}
+            onClick={buscarQuartos}
             className="w-full bg-[#E55C42] hover:bg-[#d14b33] text-white font-bold h-12 px-4 rounded-xl flex items-center justify-center transition-all shadow-lg shadow-[#E55C42]/20 hover:shadow-[#E55C42]/40"
           >
             <span className="text-sm">Ver quartos disponíveis</span> <ArrowRight className="w-4 h-4 ml-2" />
