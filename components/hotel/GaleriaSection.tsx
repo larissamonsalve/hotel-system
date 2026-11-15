@@ -5,10 +5,15 @@ import Image from 'next/image';
 import Carrossel from './Carrossel';
 import { X, ZoomIn } from 'lucide-react';
 
-export default function GaleriaSection() {
-  const [imagemAmpliada, setImagemAmpliada] = useState<{src: string, label: string} | null>(null);
+type Foto = {
+  src: string;
+  label: string;
+};
 
-  const fotosGaleria = [
+export default function GaleriaSection() {
+  const [imagemAmpliada, setImagemAmpliada] = useState<Foto | null>(null);
+
+  const fotosGaleria: Foto[] = [
     { src: '/area-externa.jpg', label: 'Fachada' },
     { src: '/recepcao.avif', label: 'Recepção' },
     { src: '/sala-recepcao.webp', label: 'Salão de Espera' },
@@ -18,7 +23,7 @@ export default function GaleriaSection() {
     { src: '/quarto-serpa.jpg', label: 'Acomodações' },
   ];
   
-  const duplicarArray = (arr: any[]) => [...arr, ...arr];
+  const duplicarArray = (arr: Foto[]) => [...arr, ...arr];
 
   return (
     <section id="fotos" className="py-24 bg-gray-50 scroll-mt-16 overflow-hidden relative">
@@ -48,7 +53,7 @@ export default function GaleriaSection() {
         ))}
       </Carrossel>
 
-      {/* Lightbox Modal (Imagem em Tela Cheia) */}
+      {/* Lightbox Modal */}
       {imagemAmpliada && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 backdrop-blur-md" onClick={() => setImagemAmpliada(null)}>
           <button 

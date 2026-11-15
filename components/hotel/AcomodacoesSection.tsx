@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Wifi, Coffee, Eye, X, Check, BedDouble, Users } from 'lucide-react';
+import { Wifi, Coffee, X, BedDouble, Users } from 'lucide-react';
 
 interface Quarto {
   id: string;
