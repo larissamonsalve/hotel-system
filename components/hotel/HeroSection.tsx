@@ -15,7 +15,6 @@ const imagensFundo = [
 export default function HeroSection() {
   const [bgIndex, setBgIndex] = useState(0);
 
-  // Troca a imagem de fundo a cada 5 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setBgIndex((prev) => (prev + 1) % imagensFundo.length);
@@ -26,7 +25,6 @@ export default function HeroSection() {
   return (
     <section id="hero" className="relative min-h-[100dvh] flex flex-col justify-between overflow-hidden bg-[#1B2A41]">
       
-      {/* Background Images */}
       {imagensFundo.map((src, index) => (
         <div 
           key={src} 
@@ -36,11 +34,11 @@ export default function HeroSection() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#1B2A41] via-[#1B2A41]/70 to-[#1B2A41]/20 mix-blend-multiply" />
         </div>
       ))}
+
+      <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#1B2A41]/80 to-transparent z-0 pointer-events-none"></div>
       
-      {/* Container Principal */}
       <div className="container mx-auto px-4 md:px-8 relative z-10 text-white flex-1 flex flex-col justify-between pt-32 md:pt-36 pb-6 md:pb-10">
         
-        {/* Bloco de Textos */}
         <div className="max-w-2xl my-auto">
           <p className="text-[9px] md:text-[10px] font-bold tracking-[0.2em] uppercase mb-3 md:mb-4 flex items-center gap-2 bg-[#8B1E32]/90 backdrop-blur-sm w-max px-3 py-1.5 rounded-full shadow-lg">
             <MapPin className="w-3 h-3" /> Itacoatiara, AM, Brasil
@@ -55,7 +53,6 @@ export default function HeroSection() {
           </p>
         </div>
         
-        {/* Bloco Inferior: Simulador */}
         <div className="w-full shrink-0">
           <SimuladorCliente />
         </div>

@@ -16,13 +16,10 @@ export default function TenantFooter({
   endereco = 'R. Floriano Peixoto, 80, Colônia, Itacoatiara - AM'
 }: TenantFooterProps) {
   return (
-    // Fundo com gradiente suave do Azul Marinho para um tom mais escuro, gerando profundidade
-    <footer className="relative bg-gradient-to-b from-[#1B2A41] to-[#0a121c] text-white overflow-hidden">
+    <footer id="contato" className="relative bg-gradient-to-b from-[#1B2A41] to-[#0a121c] text-white overflow-hidden">
       
-      {/* Faixa superior elegante em Bordô */}
       <div className="h-1.5 w-full bg-gradient-to-r from-[#8B1E32] via-[#a3273e] to-[#8B1E32]"></div>
 
-      {/* Luz ambiente de fundo (Glow sutil) para quebrar a textura lisa */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-white-[0.02] rounded-full blur-[120px] pointer-events-none opacity-20"></div>
       
       <div className="container mx-auto max-w-7xl px-6 pt-16 pb-8 relative z-10">
@@ -91,7 +88,6 @@ export default function TenantFooter({
           
         </div>
 
-        {/* Linha de Copyright (Ancora o design e dá acabamento final) */}
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-slate-400">
           <p>© {new Date().getFullYear()} {hotelNome}. Todos os direitos reservados.</p>
           <p className="hover:text-slate-300 transition-colors cursor-pointer">
