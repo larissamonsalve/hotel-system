@@ -22,94 +22,94 @@ interface QuartoModalProps {
 export default function QuartoModal({ quarto, imagem, descricao, onClose, onReservar }: QuartoModalProps) {
   return (
     <div 
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm" 
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-[#0d1520]/80 backdrop-blur-sm" 
       onClick={onClose}
     >
       <div 
-        className="bg-white w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300 relative" 
+        className="bg-white w-full max-w-4xl max-h-[95vh] flex flex-col md:flex-row rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300 relative" 
         onClick={e => e.stopPropagation()}
       >
         <button 
           onClick={onClose} 
           aria-label="Fechar detalhes"
-          className="absolute top-4 right-4 z-30 bg-black/50 md:bg-gray-100 text-white md:text-gray-600 p-2.5 rounded-full hover:bg-[#E55C42] hover:text-white transition-colors"
+          className="absolute top-3 right-3 md:top-4 md:right-4 z-30 bg-black/50 md:bg-slate-100 text-white md:text-slate-600 p-2 md:p-2.5 rounded-full hover:bg-[#8B1E32] hover:text-white transition-colors"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 md:w-5 md:h-5" />
         </button>
 
-        <div className="w-full md:w-1/2 h-56 md:h-auto relative shrink-0 bg-gray-900">
+        <div className="w-full md:w-1/2 h-40 sm:h-48 md:h-auto relative shrink-0 bg-[#1B2A41]">
           <Image 
             src={imagem} 
             alt={quarto.tipo} 
             fill 
             className="object-cover opacity-90" 
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1B2A41]/95 via-[#1B2A41]/30 to-transparent" />
           
           <div className="absolute bottom-5 left-5 right-5 text-white hidden md:flex flex-col gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest bg-[#E55C42] w-max px-2.5 py-1 rounded-md">
+            <span className="text-[10px] font-bold uppercase tracking-widest bg-[#8B1E32] w-max px-2.5 py-1 rounded-md">
               Acomodação Disponível
             </span>
-            <div className="flex items-center gap-4 text-xs font-medium text-gray-200 mt-1">
+            <div className="flex items-center gap-4 text-xs font-medium text-slate-200 mt-1">
               <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl">
-                <Users className="w-4 h-4 text-[#E55C42]" /> Até {quarto.capacidade} hóspede(s)
+                <Users className="w-4 h-4 text-[#8B1E32]" /> Até {quarto.capacidade} hóspede(s)
               </span>
               <span className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl">
-                <BedDouble className="w-4 h-4 text-[#E55C42]" /> Conforto Garantido
+                <BedDouble className="w-4 h-4 text-[#8B1E32]" /> Conforto Garantido
               </span>
             </div>
           </div>
         </div>
 
-        <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto md:overflow-visible">
+        <div className="w-full md:w-1/2 p-5 md:p-8 flex flex-col justify-between overflow-y-auto md:overflow-visible">
           <div>
-            <p className="text-[11px] font-bold tracking-widest text-[#E55C42] uppercase mb-1">
+            <p className="text-[9px] md:text-[11px] font-bold tracking-widest text-[#8B1E32] uppercase mb-1">
               Detalhes da Suíte
             </p>
-            <h3 className="text-2xl md:text-3xl font-bold text-[#0f3c26] mb-3 pr-8">
+            <h3 className="text-xl md:text-3xl font-bold text-[#1B2A41] mb-1.5 md:mb-3 pr-8 leading-tight">
               {quarto.tipo}
             </h3>
-            <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-6">
+            <p className="text-slate-600 text-[11px] md:text-base leading-relaxed mb-4 md:mb-6 line-clamp-3 md:line-clamp-none">
               {descricao}
             </p>
 
-            <div className="mb-6">
-              <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+            <div className="mb-2 md:mb-6">
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 md:mb-3">
                 O que está incluso
               </p>
-              <div className="grid grid-cols-2 gap-2.5 text-xs md:text-sm text-gray-700">
-                <div className="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                  <Wifi className="text-[#0f3c26] w-4 h-4 shrink-0" />
-                  <span className="font-medium">Wi-Fi Grátis</span>
+              <div className="grid grid-cols-2 gap-2 md:gap-2.5 text-[10px] md:text-sm text-slate-700">
+                <div className="flex items-center gap-1.5 md:gap-2 bg-slate-50 p-2 md:p-2.5 rounded-lg md:rounded-xl border border-slate-100">
+                  <Wifi className="text-[#1B2A41] w-3.5 h-3.5 shrink-0" />
+                  <span className="font-medium truncate">Wi-Fi Grátis</span>
                 </div>
-                <div className="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                  <Coffee className="text-[#0f3c26] w-4 h-4 shrink-0" />
-                  <span className="font-medium">Café da Manhã</span>
+                <div className="flex items-center gap-1.5 md:gap-2 bg-slate-50 p-2 md:p-2.5 rounded-lg md:rounded-xl border border-slate-100">
+                  <Coffee className="text-[#1B2A41] w-3.5 h-3.5 shrink-0" />
+                  <span className="font-medium truncate">Café da Manhã</span>
                 </div>
-                <div className="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                  <Users className="text-[#0f3c26] w-4 h-4 shrink-0" />
-                  <span className="font-medium">Até {quarto.capacidade} Pessoas</span>
+                <div className="flex items-center gap-1.5 md:gap-2 bg-slate-50 p-2 md:p-2.5 rounded-lg md:rounded-xl border border-slate-100">
+                  <Users className="text-[#1B2A41] w-3.5 h-3.5 shrink-0" />
+                  <span className="font-medium truncate">Até {quarto.capacidade} Pessoas</span>
                 </div>
-                <div className="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                  <CheckCircle2 className="text-[#0f3c26] w-4 h-4 shrink-0" />
-                  <span className="font-medium">Recepção 24h</span>
+                <div className="flex items-center gap-1.5 md:gap-2 bg-slate-50 p-2 md:p-2.5 rounded-lg md:rounded-xl border border-slate-100">
+                  <CheckCircle2 className="text-[#1B2A41] w-3.5 h-3.5 shrink-0" />
+                  <span className="font-medium truncate">Recepção 24h</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="pt-5 border-t border-gray-100 flex items-center justify-between gap-4">
+          <div className="pt-3 md:pt-5 border-t border-slate-100 flex items-center justify-between gap-3 md:gap-4 mt-2 md:mt-0">
             <div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-0.5">
-                Tarifa Diária
+              <p className="text-[9px] md:text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-0.5">
+                A partir de
               </p>
-              <p className="text-2xl md:text-3xl font-black text-gray-900 leading-none">
+              <p className="text-xl md:text-3xl font-black text-slate-900 leading-none">
                 R$ {quarto.valorDiaria.toFixed(2)}
               </p>
             </div>
             <button 
               onClick={onReservar} 
-              className="bg-[#0f3c26] hover:bg-[#E55C42] text-white text-sm font-bold py-3.5 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl shrink-0"
+              className="bg-[#1B2A41] hover:bg-[#8B1E32] text-white text-xs md:text-sm font-bold py-2.5 px-4 md:py-3.5 md:px-6 rounded-lg md:rounded-xl transition-all duration-300 shadow-md hover:shadow-xl shrink-0"
             >
               Reservar
             </button>
