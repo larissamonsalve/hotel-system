@@ -47,10 +47,10 @@ export default function Carrossel({ children, autoPlay = true }: CarrosselProps)
       onTouchStart={() => setIsHovered(true)}
       onTouchEnd={() => setIsHovered(false)}
     >
-      {/* Botão Voltar */}
+      {/* Botão Voltar (Cores atualizadas com animação) */}
       <button 
         onClick={() => scroll('left')} 
-        className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white text-[#0f3c26] p-3 md:p-4 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110"
+        className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-[#8B1E32] text-[#1B2A41] hover:text-white p-3 md:p-4 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110"
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
@@ -63,10 +63,10 @@ export default function Carrossel({ children, autoPlay = true }: CarrosselProps)
         {children}
       </div>
 
-      {/* Botão Avançar */}
+      {/* Botão Avançar (Cores atualizadas com animação) */}
       <button 
         onClick={() => scroll('right')} 
-        className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white text-[#0f3c26] p-3 md:p-4 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110"
+        className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-[#8B1E32] text-[#1B2A41] hover:text-white p-3 md:p-4 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110"
       >
         <ChevronRight className="w-6 h-6" />
       </button>

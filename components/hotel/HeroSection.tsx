@@ -32,7 +32,7 @@ export default function HeroSection() {
           key={src} 
           className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${index === bgIndex ? 'opacity-100' : 'opacity-0'}`}
         >
-          <Image src={src} alt={`Fundo ${index}`} fill className="object-cover" priority={index === 0} />
+          <Image src={src} alt={`Fundo ${index}`} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" priority={index === 0} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#1B2A41] via-[#1B2A41]/70 to-[#1B2A41]/20 mix-blend-multiply" />
         </div>
       ))}
