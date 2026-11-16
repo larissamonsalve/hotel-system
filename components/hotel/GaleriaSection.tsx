@@ -45,7 +45,6 @@ export default function GaleriaSection() {
     setIndexAmpliado(null);
   }, []);
 
-  // Navegação pelo teclado e bloqueio de rolagem da página
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (indexAmpliado === null) return;
@@ -88,8 +87,6 @@ export default function GaleriaSection() {
           <div 
             key={i} 
             onClick={() => setIndexAmpliado(i % fotosGaleria.length)}
-            // Tamanhos dos cards reduzidos (h-[280px] e min-w-[320px] etc) para caberem sem rolar a tela
-            // Adicionado 'group/card' para isolar a animação APENAS neste card
             className="min-w-[70vw] sm:min-w-[320px] md:min-w-[380px] h-[280px] md:h-[350px] relative rounded-3xl overflow-hidden shadow-sm border border-slate-200 snap-center group/card cursor-pointer"
           >
             <Image 
@@ -97,7 +94,7 @@ export default function GaleriaSection() {
               alt={foto.label} 
               fill 
               sizes="(max-width: 768px) 75vw, 380px"
-              // A animação responde apenas ao hover do card específico
+              priority={i === 0}
               className="object-cover group-hover/card:scale-110 transition-transform duration-700" 
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover/card:opacity-100 transition-opacity duration-300" />
@@ -113,7 +110,6 @@ export default function GaleriaSection() {
         ))}
       </Carrossel>
 
-      {/* Lightbox Modal */}
       {fotoAtual && (
         <div 
           className="fixed inset-0 z-[110] flex items-center justify-center bg-[#0d1520]/95 backdrop-blur-md" 
@@ -138,7 +134,6 @@ export default function GaleriaSection() {
             <ChevronLeft className="w-5 h-5 md:w-8 md:h-8" />
           </button>
           
-          {/* Container da imagem ampliada agora tem altura controlada (h-[55vh] md:h-[70vh]) */}
           <div 
             className="relative w-full max-w-4xl h-[55vh] md:h-[70vh] flex items-center justify-center animate-in fade-in zoom-in duration-300 px-12 md:px-0"
             onClick={(e) => e.stopPropagation()}
@@ -150,7 +145,6 @@ export default function GaleriaSection() {
               sizes="(max-width: 1024px) 100vw, 1024px"
               className="object-contain" 
             />
-            {/* Texto movido levemente para garantir que fique bem visível */}
             <div className="absolute -bottom-10 text-center text-white/90 font-medium text-sm md:text-base w-full tracking-wider bg-black/50 py-1.5 px-4 rounded-full w-max mx-auto left-0 right-0 backdrop-blur-sm">
               {fotoAtual.label} <span className="text-white/60 ml-2">({indexAmpliado! + 1} / {fotosGaleria.length})</span>
             </div>
