@@ -14,10 +14,9 @@ const imagensFundo = [
 
 export default function HeroSection() {
   const [bgIndex, setBgIndex] = useState(0);
-  const [mounted, setMounted] = useState(false);
 
+  // Troca a imagem de fundo a cada 5 segundos
   useEffect(() => {
-    setMounted(true);
     const interval = setInterval(() => {
       setBgIndex((prev) => (prev + 1) % imagensFundo.length);
     }, 5000);
@@ -31,7 +30,7 @@ export default function HeroSection() {
       {imagensFundo.map((src, index) => (
         <div 
           key={src} 
-          className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${mounted && index === bgIndex ? 'opacity-100' : index === 0 ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${index === bgIndex ? 'opacity-100' : 'opacity-0'}`}
         >
           <Image src={src} alt={`Fundo ${index}`} fill className="object-cover" priority={index === 0} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#1B2A41] via-[#1B2A41]/70 to-[#1B2A41]/20 mix-blend-multiply" />
@@ -56,7 +55,7 @@ export default function HeroSection() {
           </p>
         </div>
         
-        {/* Bloco Inferior: Apenas o Simulador (os selos já estão dentro dele) */}
+        {/* Bloco Inferior: Simulador */}
         <div className="w-full shrink-0">
           <SimuladorCliente />
         </div>
