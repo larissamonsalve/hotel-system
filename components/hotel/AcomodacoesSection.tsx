@@ -33,7 +33,7 @@ const getImagemQuarto = (tipo: string) => {
   if (t.includes('triplo')) return '/quarto-triplo.jpg';
   if (t.includes('casal') || t.includes('conforto')) return '/quarto-casal.jpg';
   if (t.includes('padrão') || t.includes('padrao')) return '/quarto-padrão.jpg';
-  return '/quarto-serpa.jpg'; 
+  return '/quarto-padrão.jpg'; 
 };
 
 export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
