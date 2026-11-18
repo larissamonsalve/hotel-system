@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { X, Users, BedDouble, Wifi, Coffee, CheckCircle2 } from 'lucide-react';
+import { X, Users, BedDouble, Tv, Wind, Bath, ConciergeBell } from 'lucide-react';
 
 interface Quarto {
   id: string;
@@ -61,49 +61,64 @@ export default function QuartoModal({ quarto, imagem, descricao, onClose, onRese
           </div>
         </div>
 
-        <div className="w-full md:w-1/2 p-5 md:p-8 flex flex-col justify-between overflow-y-auto md:overflow-visible">
+        <div className="w-full md:w-1/2 p-4 md:p-8 flex flex-col justify-between overflow-y-auto md:overflow-visible">
           <div>
             <p className="text-[9px] md:text-[11px] font-bold tracking-widest text-[#8B1E32] uppercase mb-1">
               Detalhes da Suíte
             </p>
-            <h3 className="text-xl md:text-3xl font-bold text-[#1B2A41] mb-1.5 md:mb-3 pr-8 leading-tight">
+            <h3 className="text-lg md:text-3xl font-bold text-[#1B2A41] mb-1 md:mb-3 pr-8 leading-tight">
               {quarto.tipo}
             </h3>
-            <p className="text-slate-600 text-[11px] md:text-base leading-relaxed mb-4 md:mb-6 line-clamp-3 md:line-clamp-none">
+            <p className="text-slate-600 text-[11px] md:text-base leading-snug mb-3 md:mb-5 line-clamp-2 md:line-clamp-none">
               {descricao}
             </p>
 
             <div className="mb-2 md:mb-6">
-              <p className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 md:mb-3">
-                O que está incluso
+              <p className="text-[9px] md:text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 md:mb-3">
+                Comodidades do Quarto
               </p>
-              <div className="grid grid-cols-2 gap-2 md:gap-2.5 text-[10px] md:text-sm text-slate-700">
-                <div className="flex items-center gap-1.5 md:gap-2 bg-slate-50 p-2 md:p-2.5 rounded-lg md:rounded-xl border border-slate-100">
-                  <Wifi className="text-[#1B2A41] w-3.5 h-3.5 shrink-0" />
-                  <span className="font-medium truncate">Wi-Fi Grátis</span>
+              
+              {/* Grade de Comodidades - Compactada */}
+              <div className="grid grid-cols-2 gap-2 text-[10px] md:text-[13px] text-slate-700">
+                
+                <div className="flex flex-col bg-slate-50 p-2 md:p-3 rounded-lg md:rounded-xl border border-slate-100">
+                  <span className="font-bold text-[#1B2A41] mb-0.5 flex items-center gap-1.5 text-[10px] md:text-sm">
+                    <Bath className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#8B1E32]"/> Banheiro
+                  </span>
+                  <span className="text-slate-500 text-[9px] md:text-[11px] leading-tight">Chuveiro, Toalhas</span>
                 </div>
-                <div className="flex items-center gap-1.5 md:gap-2 bg-slate-50 p-2 md:p-2.5 rounded-lg md:rounded-xl border border-slate-100">
-                  <Coffee className="text-[#1B2A41] w-3.5 h-3.5 shrink-0" />
-                  <span className="font-medium truncate">Café da Manhã</span>
+
+                <div className="flex flex-col bg-slate-50 p-2 md:p-3 rounded-lg md:rounded-xl border border-slate-100">
+                  <span className="font-bold text-[#1B2A41] mb-0.5 flex items-center gap-1.5 text-[10px] md:text-sm">
+                    <Wind className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#8B1E32]"/> Quarto
+                  </span>
+                  <span className="text-slate-500 text-[9px] md:text-[11px] leading-tight">Ar-condicionado</span>
                 </div>
-                <div className="flex items-center gap-1.5 md:gap-2 bg-slate-50 p-2 md:p-2.5 rounded-lg md:rounded-xl border border-slate-100">
-                  <Users className="text-[#1B2A41] w-3.5 h-3.5 shrink-0" />
-                  <span className="font-medium truncate">Até {quarto.capacidade} Pessoas</span>
+
+                <div className="flex flex-col bg-slate-50 p-2 md:p-3 rounded-lg md:rounded-xl border border-slate-100">
+                  <span className="font-bold text-[#1B2A41] mb-0.5 flex items-center gap-1.5 text-[10px] md:text-sm">
+                    <Tv className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#8B1E32]"/> Entret.
+                  </span>
+                  <span className="text-slate-500 text-[9px] md:text-[11px] leading-tight">TV via satélite</span>
                 </div>
-                <div className="flex items-center gap-1.5 md:gap-2 bg-slate-50 p-2 md:p-2.5 rounded-lg md:rounded-xl border border-slate-100">
-                  <CheckCircle2 className="text-[#1B2A41] w-3.5 h-3.5 shrink-0" />
-                  <span className="font-medium truncate">Recepção 24h</span>
+
+                <div className="flex flex-col bg-slate-50 p-2 md:p-3 rounded-lg md:rounded-xl border border-slate-100">
+                  <span className="font-bold text-[#1B2A41] mb-0.5 flex items-center gap-1.5 text-[10px] md:text-sm">
+                    <ConciergeBell className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#8B1E32]"/> Serviço
+                  </span>
+                  <span className="text-slate-500 text-[9px] md:text-[11px] leading-tight">Limpeza</span>
                 </div>
+
               </div>
             </div>
           </div>
 
-          <div className="pt-3 md:pt-5 border-t border-slate-100 flex items-center justify-between gap-3 md:gap-4 mt-2 md:mt-0">
+          <div className="pt-2 md:pt-5 border-t border-slate-100 flex items-center justify-between gap-3 md:gap-4 mt-2 md:mt-0">
             <div>
               <p className="text-[9px] md:text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-0.5">
                 A partir de
               </p>
-              <p className="text-xl md:text-3xl font-black text-slate-900 leading-none">
+              <p className="text-lg md:text-3xl font-black text-slate-900 leading-none">
                 R$ {quarto.valorDiaria.toFixed(2)}
               </p>
             </div>

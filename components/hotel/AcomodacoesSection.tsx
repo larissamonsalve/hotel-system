@@ -15,24 +15,23 @@ interface Quarto {
 
 const getDescricao = (tipo: string) => {
   const t = tipo.toLowerCase();
-  // Ajustado para bater com o inicial
-  if (t.includes('triplo')) return 'Acomoda até 3 hóspedes, configurado com uma cama de casal e uma cama de solteiro.';
-  // Mantendo o ajuste solicitado anteriormente
-  if (t.includes('casal') || t.includes('conforto')) return '1 cama king size para casal.';
-  // Mantendo o ajuste solicitado anteriormente
-  if (t.includes('duplo')) return 'Acomodação estruturada para até 2 pessoas com 2 camas de solteiro.';
-  if (t.includes('família') || t.includes('familia')) return 'Espaço acolhedor para criar boas memórias.';
-  if (t.includes('premium')) return 'Nossa experiência mais completa e reservada.';
-  // Mantendo o ajuste solicitado anteriormente
-  if (t.includes('padrão') || t.includes('padrao')) return 'Acomodação estruturada para até 1 pessoa.';
+  
+  if (t.includes('triplo')) return 'Acomoda até 3 hóspedes, geralmente configurado com uma cama de casal e uma cama de solteiro.';
+  if (t.includes('casal')) return 'Possui 1 cama de casal (king-size), acomoda 2 hóspedes.';
+  if (t.includes('duplo')) return 'Possui 2 camas de solteiro separadas no mesmo ambiente. Acomoda 2 hóspedes.';
+  if (t.includes('padrão') || t.includes('padrao')) return 'Possui 1 cama king size. Acomoda 1 pessoa.';
+  
   return `Acomodação estruturada para até ${tipo} hóspedes.`;
 };
 
 const getImagemQuarto = (tipo: string) => {
   const t = tipo.toLowerCase();
+  
   if (t.includes('triplo')) return '/quarto-triplo.jpg';
-  if (t.includes('casal') || t.includes('conforto')) return '/quarto-casal.jpg';
+  if (t.includes('casal')) return '/quarto-padrão.jpg';
+  if (t.includes('duplo')) return '/quarto-casal.jpg';
   if (t.includes('padrão') || t.includes('padrao')) return '/quarto-padrão.jpg';
+  
   return '/quarto-padrão.jpg'; 
 };
 
@@ -49,7 +48,6 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
     <section id="acomodacoes" className="min-h-screen flex flex-col justify-center bg-white py-16 overflow-hidden">
       <div className="container mx-auto max-w-7xl px-4 md:px-8">
         
-        {/* Cabeçalho Dividido */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
           <div className="max-w-2xl">
             <p className="text-[10px] font-bold tracking-widest text-[#8B1E32] uppercase mb-3">Acomodações</p>
@@ -64,7 +62,6 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
           </div>
         </div>
 
-        {/* Container Horizontal (Scroll) */}
         <div className="flex overflow-x-auto gap-5 md:gap-6 pb-8 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {quartos.map((quarto, index) => (
             <div 
@@ -72,7 +69,6 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
               onClick={() => !quarto.esgotado && setQuartoSelecionado(quarto)}
               className={`w-[85vw] sm:w-[300px] md:w-[340px] shrink-0 flex flex-col bg-white rounded-[20px] border border-slate-200 overflow-hidden snap-center cursor-pointer transition-all duration-300 group ${quarto.esgotado ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-xl hover:-translate-y-1'}`}
             >
-              {/* Foto usa Aspect Ratio 16:10 */}
               <div className="w-full aspect-[16/10] relative overflow-hidden bg-slate-100 shrink-0">
                 <Image 
                   src={getImagemQuarto(quarto.tipo)} 
@@ -91,14 +87,12 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
                 )}
 
                 {!quarto.esgotado && index === 0 && (
-                  // Etiqueta "Mais reservado" com cor vermelha/bordô (#8B1E32)
                   <div className="absolute top-4 left-4 bg-[#8B1E32] text-white text-[10px] font-medium px-3 py-1.5 rounded-md shadow-sm z-10">
                     Mais reservado
                   </div>
                 )}
               </div>
 
-              {/* Corpo do Card */}
               <div className="p-5 md:p-6 flex flex-col flex-1">
                 <h3 className={`text-lg font-medium mb-1 ${quarto.esgotado ? 'text-slate-400 line-through' : 'text-[#1B2A41]'}`}>
                   {quarto.tipo}
@@ -107,14 +101,12 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
                   {getDescricao(quarto.tipo)}
                 </p>
                 
-                {/* Ícones Minimalistas */}
                 <div className="flex gap-4 text-[11px] text-slate-500 mb-6">
                   <span className="flex items-center gap-1.5"><Wifi className="w-3.5 h-3.5"/> Wi-Fi</span>
                   <span className="flex items-center gap-1.5"><Coffee className="w-3.5 h-3.5"/> Café</span>
                   <span className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5"/> Vista</span>
                 </div>
                 
-                {/* Rodapé flexível: Preço e botões na mesma linha */}
                 <div className="mt-auto flex items-end justify-between pt-1">
                   <div>
                     <p className="text-[10px] text-slate-400 mb-0.5">
