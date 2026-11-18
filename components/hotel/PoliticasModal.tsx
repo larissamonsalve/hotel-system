@@ -1,6 +1,6 @@
 'use client';
 
-import { X, MapPin, CheckCircle, Utensils, Baby, ShieldAlert, Info } from 'lucide-react';
+import { X, MapPin, CheckCircle, Utensils, Baby, ShieldAlert, Info, Coffee, ConciergeBell, Waves } from 'lucide-react';
 
 interface PoliticasModalProps {
   onClose: () => void;
@@ -9,20 +9,16 @@ interface PoliticasModalProps {
 export default function PoliticasModal({ onClose }: PoliticasModalProps) {
   return (
     <div 
-      // Padding reduzido no mobile (p-3) para aproveitar o máximo da tela
-      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-[#0d1520]/80 backdrop-blur-sm" 
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-[#0d1520]/80 backdrop-blur-sm" 
       onClick={onClose}
     >
       <div 
-        // max-h-[85dvh] garante que o final da caixa fique sempre visível, sem ser coberto pelas barras do navegador no celular
-        className="bg-white w-full max-w-4xl max-h-[85dvh] flex flex-col rounded-[24px] shadow-2xl animate-in fade-in zoom-in duration-300 relative overflow-hidden" 
+        className="bg-white w-full max-w-4xl max-h-[90svh] flex flex-col rounded-[24px] shadow-2xl animate-in fade-in zoom-in duration-300 relative overflow-hidden" 
         onClick={e => e.stopPropagation()}
       >
-        
-        {/* Cabeçalho Fixo do Modal */}
-        <div className="bg-white border-b border-slate-100 p-4 md:p-6 flex justify-between items-center z-10 shrink-0">
+        <div className="bg-white border-b border-slate-100 p-5 md:p-6 flex justify-between items-center z-10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="bg-[#1B2A41] p-2 rounded-lg">
+            <div className="bg-[#1B2A41] p-2 rounded-lg shrink-0">
               <Info className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </div>
             <h3 className="text-lg md:text-xl font-semibold text-[#1B2A41]">
@@ -32,21 +28,19 @@ export default function PoliticasModal({ onClose }: PoliticasModalProps) {
           <button 
             onClick={onClose} 
             aria-label="Fechar modal"
-            className="bg-slate-50 text-slate-500 p-2 md:p-2.5 rounded-full hover:bg-[#8B1E32] hover:text-white transition-colors border border-slate-100"
+            className="bg-slate-50 text-slate-500 p-2 md:p-2.5 rounded-full hover:bg-[#8B1E32] hover:text-white transition-colors border border-slate-100 shrink-0"
           >
             <X className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
         
-        {/* Corpo Rolável do Modal (Rolagem apenas do conteúdo interno) */}
-        {/* Redução de espaçamentos: p-4 no mobile, space-y-5 no mobile */}
-        <div className="p-4 sm:p-5 md:p-8 overflow-y-auto space-y-5 md:space-y-8 text-slate-600 flex-1 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <div className="p-5 md:p-8 overflow-y-auto overflow-x-hidden space-y-6 md:space-y-8 text-slate-600 flex-1 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
           
           <section>
-            <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-2.5 flex items-center gap-2 uppercase tracking-wide">
-              <ShieldAlert className="w-4 h-4 text-[#8B1E32]"/> Regras Gerais e Taxas
+            <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-3 flex items-center gap-2 uppercase tracking-wide">
+              <ShieldAlert className="w-4 h-4 text-[#8B1E32] shrink-0"/> Regras Gerais e Taxas
             </h4>
-            <ul className="list-disc pl-5 text-[11px] md:text-sm space-y-2 bg-slate-50 p-4 md:p-5 rounded-[16px] border border-slate-100 leading-relaxed">
+            <ul className="list-disc pl-5 text-[12px] md:text-sm space-y-2.5 bg-slate-50 p-5 md:p-6 rounded-[16px] border border-slate-100 leading-relaxed">
               <li>A equipe da recepção recebe os hóspedes presencialmente. Não há check-in após horário comercial (meia-noite).</li>
               <li>O hotel não possui estacionamento próprio no local.</li>
               <li>Áreas para fumantes estão restritas. Multas serão aplicadas em caso de infração dentro dos quartos.</li>
@@ -55,11 +49,11 @@ export default function PoliticasModal({ onClose }: PoliticasModalProps) {
           </section>
 
           <section>
-            <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-2.5 flex items-center gap-2 uppercase tracking-wide">
-              <Baby className="w-4 h-4 text-[#8B1E32]"/> Políticas para Menores
+            <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-3 flex items-center gap-2 uppercase tracking-wide">
+              <Baby className="w-4 h-4 text-[#8B1E32] shrink-0"/> Políticas para Menores
             </h4>
-            <div className="bg-slate-50 border border-slate-100 p-4 md:p-5 rounded-[16px]">
-              <p className="text-[11px] md:text-sm leading-relaxed mb-2.5">
+            <div className="bg-slate-50 border border-slate-100 p-5 md:p-6 rounded-[16px]">
+              <p className="text-[12px] md:text-sm leading-relaxed mb-3">
                 Os responsáveis devem apresentar a certidão de nascimento e documento com foto da criança no momento do check-in. Não dispomos de berços ou camas extras.
               </p>
               <p className="text-[11px] md:text-sm leading-relaxed text-slate-500 font-medium">
@@ -68,27 +62,90 @@ export default function PoliticasModal({ onClose }: PoliticasModalProps) {
             </div>
           </section>
 
-          {/* Grid mais compacta no mobile (gap-5) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
-            <section>
-              <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-2.5 flex items-center gap-2 uppercase tracking-wide">
-                <MapPin className="w-4 h-4 text-[#8B1E32]"/> Pontos de Interesse
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 md:gap-6">
+            <section className="flex flex-col">
+              <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-3 flex items-center gap-2 uppercase tracking-wide">
+                <Coffee className="w-4 h-4 text-[#8B1E32] shrink-0"/> Alimentação
               </h4>
-              <ul className="space-y-2 text-[11px] md:text-sm bg-slate-50 p-4 md:p-5 rounded-[16px] border border-slate-100 h-full">
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#1B2A41] shrink-0"/> Praça da Polícia (1 min)</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#1B2A41] shrink-0"/> Mirante (10 min)</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#1B2A41] shrink-0"/> Orla de Itacoatiara (11 min)</li>
+              <ul className="space-y-3 text-[12px] md:text-sm bg-slate-50 p-5 md:p-6 rounded-[16px] border border-slate-100 flex-1">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Café da manhã completo grátis disponível todos os dias, entre 6h30 e 9h30</span>
+                </li>
               </ul>
             </section>
 
-            <section>
-              <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-2.5 flex items-center gap-2 uppercase tracking-wide">
-                <Utensils className="w-4 h-4 text-[#8B1E32]"/> Gastronomia Próxima
+            <section className="flex flex-col">
+              <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-3 flex items-center gap-2 uppercase tracking-wide">
+                <ConciergeBell className="w-4 h-4 text-[#8B1E32] shrink-0"/> Serviços
               </h4>
-              <ul className="space-y-2 text-[11px] md:text-sm bg-slate-50 p-4 md:p-5 rounded-[16px] border border-slate-100 h-full">
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#1B2A41] shrink-0"/> Café Mais que Vencedor (3 min)</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#1B2A41] shrink-0"/> Tacacá da Nonata (3 min)</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#1B2A41] shrink-0"/> Jojo Delícias (5 min)</li>
+              <ul className="space-y-3 text-[12px] md:text-sm bg-slate-50 p-5 md:p-6 rounded-[16px] border border-slate-100 flex-1">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Balcão de recepção 24 horas</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Lavanderia</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Armazenamento para bagagem</span>
+                </li>
+              </ul>
+            </section>
+
+            <section className="flex flex-col">
+              <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-3 flex items-center gap-2 uppercase tracking-wide">
+                <Waves className="w-4 h-4 text-[#8B1E32] shrink-0"/> Instalações
+              </h4>
+              <ul className="space-y-3 text-[12px] md:text-sm bg-slate-50 p-5 md:p-6 rounded-[16px] border border-slate-100 flex-1">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Piscina externa</span>
+                </li>
+              </ul>
+            </section>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+            <section className="flex flex-col">
+              <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-3 flex items-center gap-2 uppercase tracking-wide">
+                <MapPin className="w-4 h-4 text-[#8B1E32] shrink-0"/> Pontos de Interesse
+              </h4>
+              <ul className="space-y-3 text-[12px] md:text-sm bg-slate-50 p-5 md:p-6 rounded-[16px] border border-slate-100 flex-1">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Praça da Polícia (1 min a pé)</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Mirante (10 min a pé)</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Orla de Itacoatiara (11 min a pé)</span>
+                </li>
+              </ul>
+            </section>
+
+            <section className="flex flex-col">
+              <h4 className="text-[13px] md:text-sm font-bold text-[#1B2A41] mb-3 flex items-center gap-2 uppercase tracking-wide">
+                <Utensils className="w-4 h-4 text-[#8B1E32] shrink-0"/> Gastronomia Próxima
+              </h4>
+              <ul className="space-y-3 text-[12px] md:text-sm bg-slate-50 p-5 md:p-6 rounded-[16px] border border-slate-100 flex-1">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Café Mais que Vencedor (3 min a pé)</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Tacacá da Nonata (3 min a pé)</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#1B2A41] shrink-0 mt-0.5"/> 
+                  <span className="leading-relaxed">Jojo Delícias (5 min a pé)</span>
+                </li>
               </ul>
             </section>
           </div>
