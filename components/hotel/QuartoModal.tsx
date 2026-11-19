@@ -78,7 +78,6 @@ export default function QuartoModal({ quarto, imagem, descricao, onClose, onRese
                 Comodidades do Quarto
               </p>
               
-              {/* Grade de Comodidades - Compactada */}
               <div className="grid grid-cols-2 gap-2 text-[10px] md:text-[13px] text-slate-700">
                 
                 <div className="flex flex-col bg-slate-50 p-2 md:p-3 rounded-lg md:rounded-xl border border-slate-100">

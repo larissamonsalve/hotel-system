@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Wifi, Coffee, Eye } from 'lucide-react';
 import QuartoModal from './QuartoModal';
@@ -15,33 +16,36 @@ interface Quarto {
 
 const getDescricao = (tipo: string) => {
   const t = tipo.toLowerCase();
-  
   if (t.includes('triplo')) return 'Acomoda até 3 hóspedes, geralmente configurado com uma cama de casal e uma cama de solteiro.';
   if (t.includes('casal')) return 'Possui 1 cama de casal (king-size), acomoda 2 hóspedes.';
   if (t.includes('duplo')) return 'Possui 2 camas de solteiro separadas no mesmo ambiente. Acomoda 2 hóspedes.';
   if (t.includes('padrão') || t.includes('padrao')) return 'Possui 1 cama king size. Acomoda 1 pessoa.';
-  
   return `Acomodação estruturada para até ${tipo} hóspedes.`;
 };
 
 const getImagemQuarto = (tipo: string) => {
   const t = tipo.toLowerCase();
-  
   if (t.includes('triplo')) return '/quarto-triplo.jpg';
-  if (t.includes('casal')) return '/quarto-padrão.jpg';
-  if (t.includes('duplo')) return '/quarto-casal.jpg';
-  if (t.includes('padrão') || t.includes('padrao')) return '/quarto-padrão.jpg';
-  
+  if (t.includes('casal') || t.includes('duplo')) return '/quarto-casal.jpg';
   return '/quarto-padrão.jpg'; 
 };
 
 export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
   const [quartoSelecionado, setQuartoSelecionado] = useState<Quarto | null>(null);
+  const router = useRouter();
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const slug = params.slug as string;
 
-  const rolarParaSimulador = (e?: React.MouseEvent) => {
+  const checkInURL = searchParams.get('checkIn') || '';
+  const checkOutURL = searchParams.get('checkOut') || '';
+
+  const iniciarReserva = (quarto: Quarto, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setQuartoSelecionado(null);
-    document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+    
+    const url = `/h/${slug}/checkout?quartoId=${quarto.id}&tipo=${encodeURIComponent(quarto.tipo)}&valor=${quarto.valorDiaria}&capacidade=${quarto.capacidade}&checkIn=${checkInURL}&checkOut=${checkOutURL}`;
+    router.push(url);
   };
 
   return (
@@ -63,7 +67,7 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
         </div>
 
         <div className="flex overflow-x-auto gap-5 md:gap-6 pb-8 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {quartos.map((quarto, index) => (
+          {quartos.map((quarto) => (
             <div 
               key={quarto.id}
               onClick={() => !quarto.esgotado && setQuartoSelecionado(quarto)}
@@ -83,12 +87,6 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
                     <span className="bg-red-700 text-white font-bold px-3 py-1.5 rounded-lg tracking-wider text-xs shadow-lg">
                       ESGOTADO
                     </span>
-                  </div>
-                )}
-
-                {!quarto.esgotado && index === 0 && (
-                  <div className="absolute top-4 left-4 bg-[#8B1E32] text-white text-[10px] font-medium px-3 py-1.5 rounded-md shadow-sm z-10">
-                    Mais reservado
                   </div>
                 )}
               </div>
@@ -131,7 +129,7 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
                         Detalhes
                       </button>
                       <button 
-                        onClick={rolarParaSimulador} 
+                        onClick={(e) => iniciarReserva(quarto, e)} 
                         className="bg-[#1B2A41] hover:bg-[#8B1E32] text-white text-[11px] font-medium py-2.5 px-3.5 rounded-xl transition-colors duration-300 shadow-sm"
                       >
                         Reservar
@@ -151,7 +149,7 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
           imagem={getImagemQuarto(quartoSelecionado.tipo)}
           descricao={getDescricao(quartoSelecionado.tipo)}
           onClose={() => setQuartoSelecionado(null)}
-          onReservar={rolarParaSimulador}
+          onReservar={() => iniciarReserva(quartoSelecionado)}
         />
       )}
     </section>
