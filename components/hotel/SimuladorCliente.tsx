@@ -8,7 +8,6 @@ export default function SimuladorCliente() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // ATUALIZADO: Lendo as chaves padronizadas em camelCase
   const [dataCheckIn, setDataCheckIn] = useState<string>(searchParams.get('checkIn') || '');
   const [dataCheckOut, setDataCheckOut] = useState<string>(searchParams.get('checkOut') || '');
   const [hospedes, setHospedes] = useState<string>(searchParams.get('hospedes') || '');
@@ -16,12 +15,10 @@ export default function SimuladorCliente() {
   const buscarQuartos = () => {
     const params = new URLSearchParams();
     
-    // ATUALIZADO: Escrevendo as chaves padronizadas na URL
     if (dataCheckIn) params.set('checkIn', dataCheckIn);
     if (dataCheckOut) params.set('checkOut', dataCheckOut);
     if (hospedes) params.set('hospedes', hospedes);
 
-    // Atualiza a URL mantendo o cliente na mesma página, mas rolando para as acomodações
     router.push(`?${params.toString()}#acomodacoes`, { scroll: false });
     
     setTimeout(() => {

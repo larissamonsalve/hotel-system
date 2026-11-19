@@ -97,7 +97,10 @@ export default function CheckoutClient({ slug }: CheckoutClientProps) {
       if (!response.ok) {
         if (data.details) {
           const apiErros: { [key: string]: string } = {};
-          data.details.forEach((err: any) => apiErros[err.campo] = err.mensagem);
+          // CORREÇÃO 1: Substituímos o (err: any) pela tipagem exata que a API devolve
+          data.details.forEach((err: { campo: string; mensagem: string }) => {
+            apiErros[err.campo] = err.mensagem;
+          });
           setErrosCampo(apiErros);
           throw new Error('Verifique os campos destacados e tente novamente.');
         }
@@ -106,8 +109,12 @@ export default function CheckoutClient({ slug }: CheckoutClientProps) {
 
       router.push(`/h/${slug}/verificacao?email=${encodeURIComponent(result.data.email)}&quartoId=${quartoId}&checkIn=${checkIn}&checkOut=${checkOut}`);
       
-    } catch (err: any) {
-      setErroGeral(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErroGeral(err.message);
+      } else {
+        setErroGeral('Ocorreu um erro inesperado.');
+      }
     } finally {
       setLoading(false);
     }

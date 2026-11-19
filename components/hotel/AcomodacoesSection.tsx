@@ -23,7 +23,6 @@ const getDescricao = (tipo: string) => {
   return `Acomodação estruturada para até ${tipo} hóspedes.`;
 };
 
-// Usando os nomes exatos do seu diretório public
 const getImagemQuarto = (tipo: string) => {
   const t = tipo.toLowerCase();
   if (t.includes('triplo')) return '/quarto-triplo.jpg';
@@ -38,7 +37,6 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
   const searchParams = useSearchParams();
   const slug = params.slug as string;
 
-  // Lemos as datas da URL caso o SimuladorCliente já as tenha definido
   const checkInURL = searchParams.get('checkIn') || '';
   const checkOutURL = searchParams.get('checkOut') || '';
 
@@ -46,7 +44,6 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
     if (e) e.stopPropagation();
     setQuartoSelecionado(null);
     
-    // Repassamos todos os dados, inclusive as datas, para o Checkout de forma "Stateless"
     const url = `/h/${slug}/checkout?quartoId=${quarto.id}&tipo=${encodeURIComponent(quarto.tipo)}&valor=${quarto.valorDiaria}&capacidade=${quarto.capacidade}&checkIn=${checkInURL}&checkOut=${checkOutURL}`;
     router.push(url);
   };
@@ -70,7 +67,7 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
         </div>
 
         <div className="flex overflow-x-auto gap-5 md:gap-6 pb-8 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {quartos.map((quarto, index) => (
+          {quartos.map((quarto) => (
             <div 
               key={quarto.id}
               onClick={() => !quarto.esgotado && setQuartoSelecionado(quarto)}
