@@ -6,7 +6,7 @@ import { Lock } from 'lucide-react';
 
 export default function CheckoutHeader() {
   const router = useRouter();
-  const hotelNome = "Hotel Serpa";
+  const hotelNome = "Serpa Hotel";
   const primeiraPalavra = hotelNome.split(' ')[0];
   const restoDoNome = hotelNome.split(' ').slice(1).join(' ');
 

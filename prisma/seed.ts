@@ -11,12 +11,12 @@ async function main() {
   const hotel = await prisma.hotel.upsert({
     where: { slug: 'hotel-serpa' },
     update: {
-      nome: 'Hotel Serpa',
+      nome: 'Serpa Hotel',
       telefone: '+55 (92) 3011-7217', 
       endereco: 'R. Floriano Peixoto, 80 (ou 223), Colônia, Itacoatiara - AM, CEP 69100-000', // Dado oficial do PDF
     },
     create: {
-      nome: 'Hotel Serpa',
+      nome: 'Serpa Hotel',
       slug: 'hotel-serpa',
       cnpj: '00000000000100', 
       telefone: '+55 (92) 3011-7217',
