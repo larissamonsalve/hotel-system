@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Wifi, Coffee, Eye } from 'lucide-react';
 import QuartoModal from './QuartoModal';
@@ -15,33 +16,39 @@ interface Quarto {
 
 const getDescricao = (tipo: string) => {
   const t = tipo.toLowerCase();
-  
   if (t.includes('triplo')) return 'Acomoda até 3 hóspedes, geralmente configurado com uma cama de casal e uma cama de solteiro.';
   if (t.includes('casal')) return 'Possui 1 cama de casal (king-size), acomoda 2 hóspedes.';
   if (t.includes('duplo')) return 'Possui 2 camas de solteiro separadas no mesmo ambiente. Acomoda 2 hóspedes.';
   if (t.includes('padrão') || t.includes('padrao')) return 'Possui 1 cama king size. Acomoda 1 pessoa.';
-  
   return `Acomodação estruturada para até ${tipo} hóspedes.`;
 };
 
+// Usando os nomes exatos do seu diretório public
 const getImagemQuarto = (tipo: string) => {
   const t = tipo.toLowerCase();
-  
   if (t.includes('triplo')) return '/quarto-triplo.jpg';
-  if (t.includes('casal')) return '/quarto-padrão.jpg';
-  if (t.includes('duplo')) return '/quarto-casal.jpg';
-  if (t.includes('padrão') || t.includes('padrao')) return '/quarto-padrão.jpg';
-  
+  if (t.includes('casal') || t.includes('duplo')) return '/quarto-casal.jpg';
   return '/quarto-padrão.jpg'; 
 };
 
 export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
   const [quartoSelecionado, setQuartoSelecionado] = useState<Quarto | null>(null);
+  const router = useRouter();
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const slug = params.slug as string;
 
-  const rolarParaSimulador = (e?: React.MouseEvent) => {
+  // Lemos as datas da URL caso o SimuladorCliente já as tenha definido
+  const checkInURL = searchParams.get('checkIn') || '';
+  const checkOutURL = searchParams.get('checkOut') || '';
+
+  const iniciarReserva = (quarto: Quarto, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setQuartoSelecionado(null);
-    document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+    
+    // Repassamos todos os dados, inclusive as datas, para o Checkout de forma "Stateless"
+    const url = `/h/${slug}/checkout?quartoId=${quarto.id}&tipo=${encodeURIComponent(quarto.tipo)}&valor=${quarto.valorDiaria}&capacidade=${quarto.capacidade}&checkIn=${checkInURL}&checkOut=${checkOutURL}`;
+    router.push(url);
   };
 
   return (
@@ -85,12 +92,6 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
                     </span>
                   </div>
                 )}
-
-                {!quarto.esgotado && index === 0 && (
-                  <div className="absolute top-4 left-4 bg-[#8B1E32] text-white text-[10px] font-medium px-3 py-1.5 rounded-md shadow-sm z-10">
-                    Mais reservado
-                  </div>
-                )}
               </div>
 
               <div className="p-5 md:p-6 flex flex-col flex-1">
@@ -131,7 +132,7 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
                         Detalhes
                       </button>
                       <button 
-                        onClick={rolarParaSimulador} 
+                        onClick={(e) => iniciarReserva(quarto, e)} 
                         className="bg-[#1B2A41] hover:bg-[#8B1E32] text-white text-[11px] font-medium py-2.5 px-3.5 rounded-xl transition-colors duration-300 shadow-sm"
                       >
                         Reservar
@@ -151,7 +152,7 @@ export default function AcomodacoesSection({ quartos }: { quartos: Quarto[] }) {
           imagem={getImagemQuarto(quartoSelecionado.tipo)}
           descricao={getDescricao(quartoSelecionado.tipo)}
           onClose={() => setQuartoSelecionado(null)}
-          onReservar={rolarParaSimulador}
+          onReservar={() => iniciarReserva(quartoSelecionado)}
         />
       )}
     </section>

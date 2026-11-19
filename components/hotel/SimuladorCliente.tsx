@@ -8,16 +8,20 @@ export default function SimuladorCliente() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [dataCheckIn, setDataCheckIn] = useState<string>(searchParams.get('checkin') || '');
-  const [dataCheckOut, setDataCheckOut] = useState<string>(searchParams.get('checkout') || '');
+  // ATUALIZADO: Lendo as chaves padronizadas em camelCase
+  const [dataCheckIn, setDataCheckIn] = useState<string>(searchParams.get('checkIn') || '');
+  const [dataCheckOut, setDataCheckOut] = useState<string>(searchParams.get('checkOut') || '');
   const [hospedes, setHospedes] = useState<string>(searchParams.get('hospedes') || '');
 
   const buscarQuartos = () => {
     const params = new URLSearchParams();
-    if (dataCheckIn) params.set('checkin', dataCheckIn);
-    if (dataCheckOut) params.set('checkout', dataCheckOut);
+    
+    // ATUALIZADO: Escrevendo as chaves padronizadas na URL
+    if (dataCheckIn) params.set('checkIn', dataCheckIn);
+    if (dataCheckOut) params.set('checkOut', dataCheckOut);
     if (hospedes) params.set('hospedes', hospedes);
 
+    // Atualiza a URL mantendo o cliente na mesma página, mas rolando para as acomodações
     router.push(`?${params.toString()}#acomodacoes`, { scroll: false });
     
     setTimeout(() => {
@@ -35,6 +39,7 @@ export default function SimuladorCliente() {
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
               type="date" 
+              min={new Date().toISOString().split('T')[0]} // Impede datas no passado
               className="w-full pl-9 pr-3 h-11 md:h-12 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#1B2A41] outline-none text-xs md:text-sm text-slate-700 transition-all"
               value={dataCheckIn}
               onChange={(e) => setDataCheckIn(e.target.value)}
@@ -48,6 +53,7 @@ export default function SimuladorCliente() {
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
               type="date" 
+              min={dataCheckIn || new Date().toISOString().split('T')[0]} // Impede check-out antes do check-in
               className="w-full pl-9 pr-3 h-11 md:h-12 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#1B2A41] outline-none text-xs md:text-sm text-slate-700 transition-all"
               value={dataCheckOut}
               onChange={(e) => setDataCheckOut(e.target.value)}
