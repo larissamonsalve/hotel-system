@@ -8,8 +8,17 @@ import CheckoutHeader from './ui/CheckoutHeader';
 import ReservaSummary from './ui/ReservaSummary';
 import CheckoutStepper from './ui/CheckoutStepper';
 
+interface HotelConfig {
+  nome: string;
+  logoUrl: string | null;
+  corPrincipal: string;
+  corSecundaria: string;
+  politicaCancelamento: string | null;
+}
+
 interface CheckoutClientProps {
   slug: string;
+  hotelConfig: HotelConfig;
 }
 
 const mascaraWhatsapp = (valor: string) => {
@@ -18,19 +27,18 @@ const mascaraWhatsapp = (valor: string) => {
   return numeros.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
 };
 
-export default function CheckoutClient({ slug }: CheckoutClientProps) {
+export default function CheckoutClient({ slug, hotelConfig }: CheckoutClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // Parâmetros de URL
   const quartoId = searchParams.get('quartoId') || '';
   const tipoQuarto = searchParams.get('tipo') || 'Acomodação Padrão';
   const valorDiaria = Number(searchParams.get('valor')) || 0;
   const capacidade = Number(searchParams.get('capacidade')) || 2;
   const checkInURL = searchParams.get('checkIn') || '';
   const checkOutURL = searchParams.get('checkOut') || '';
+  const imagemUrl = searchParams.get('img') || '';
 
-  // Estados
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
@@ -42,7 +50,6 @@ export default function CheckoutClient({ slug }: CheckoutClientProps) {
   const [erroGeral, setErroGeral] = useState<string | null>(null);
   const [errosCampo, setErrosCampo] = useState<{ [key: string]: string }>({});
 
-  // Lógica de Negócio (Calculos)
   const qtdDiarias = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
     const start = new Date(checkIn + 'T12:00:00');
@@ -97,7 +104,6 @@ export default function CheckoutClient({ slug }: CheckoutClientProps) {
       if (!response.ok) {
         if (data.details) {
           const apiErros: { [key: string]: string } = {};
-          // CORREÇÃO 1: Substituímos o (err: any) pela tipagem exata que a API devolve
           data.details.forEach((err: { campo: string; mensagem: string }) => {
             apiErros[err.campo] = err.mensagem;
           });
@@ -120,28 +126,33 @@ export default function CheckoutClient({ slug }: CheckoutClientProps) {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#f8fafc] font-sans pb-16">
-      <CheckoutHeader />
+  const cssVars = {
+    '--color-primary': hotelConfig.corPrincipal,
+    '--color-secondary': hotelConfig.corSecundaria
+  } as React.CSSProperties;
 
-      <CheckoutStepper currentStep={1} />
+  return (
+    <div style={cssVars} className="min-h-screen bg-[#f8fafc] font-sans pb-16">
+      <CheckoutHeader hotelConfig={hotelConfig} />
+
+      <CheckoutStepper currentStep={1} hotelConfig={hotelConfig} />
 
       <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* COLUNA ESQUERDA: Resumo */}
         <div className="lg:col-span-5">
           <ReservaSummary 
             tipoQuarto={tipoQuarto} capacidade={capacidade}
             checkIn={checkIn} checkOut={checkOut} qtdDiarias={qtdDiarias}
             valorDiaria={valorDiaria} valorTotal={valorTotal}
             taxaReserva={taxaReserva} saldoNoHotel={saldoNoHotel}
+            imagemUrl={imagemUrl}
+            hotelConfig={hotelConfig}
           />
         </div>
 
-        {/* COLUNA DIREITA: Formulário */}
         <div className="lg:col-span-7 bg-white rounded-[24px] shadow-sm border border-slate-200 p-6 sm:p-8 md:p-10">
           <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-3">Passo 1 de 3</p>
-          <h1 className="text-2xl sm:text-3xl font-medium text-[#1B2A41] tracking-tight mb-2">Quem vai se hospedar?</h1>
+          <h1 className="text-2xl sm:text-3xl font-medium text-[var(--color-primary)] tracking-tight mb-2">Quem vai se hospedar?</h1>
           <p className="text-slate-500 mb-6 sm:mb-8 text-xs sm:text-sm">Preencha os dados do responsável pela reserva.</p>
 
           {erroGeral && (
@@ -155,45 +166,50 @@ export default function CheckoutClient({ slug }: CheckoutClientProps) {
             {(!checkInURL || !checkOutURL) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-100 mb-6">
                 <div>
-                  <label className="block text-[11px] sm:text-xs font-bold text-[#1B2A41] uppercase tracking-wide mb-2">Check-in</label>
+                  <label className="block text-[11px] sm:text-xs font-bold text-[var(--color-primary)] uppercase tracking-wide mb-2">Check-in</label>
                   <input type="date" required value={checkIn} min={new Date().toISOString().split('T')[0]} 
                     onChange={e => setCheckIn(e.target.value)}
-                    className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#8B1E32]/20 outline-none text-sm"
+                    className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-2 outline-none text-sm focus:border-transparent"
+                    style={{ '--tw-ring-color': hotelConfig.corSecundaria } as React.CSSProperties}
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] sm:text-xs font-bold text-[#1B2A41] uppercase tracking-wide mb-2">Check-out</label>
+                  <label className="block text-[11px] sm:text-xs font-bold text-[var(--color-primary)] uppercase tracking-wide mb-2">Check-out</label>
                   <input type="date" required value={checkOut} min={checkIn || new Date().toISOString().split('T')[0]}
                     onChange={e => setCheckOut(e.target.value)}
-                    className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#8B1E32]/20 outline-none text-sm"
+                    className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-2 outline-none text-sm focus:border-transparent"
+                    style={{ '--tw-ring-color': hotelConfig.corSecundaria } as React.CSSProperties}
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-[11px] sm:text-xs font-bold text-[#1B2A41] uppercase tracking-wide mb-2">Nome Completo</label>
+              <label className="block text-[11px] sm:text-xs font-bold text-[var(--color-primary)] uppercase tracking-wide mb-2">Nome Completo</label>
               <input type="text" value={nome} placeholder="Ex.: Maria da Silva" 
                 onChange={e => { setNome(e.target.value); if (errosCampo.nome) setErrosCampo(p => ({...p, nome: ''})); }}
-                className={`w-full px-4 py-3.5 bg-white border rounded-xl focus:ring-2 outline-none text-sm ${errosCampo.nome ? 'border-red-400 focus:ring-red-200' : 'border-slate-200 focus:ring-[#8B1E32]/20'}`}
+                className={`w-full px-4 py-3.5 bg-white border rounded-xl focus:ring-2 outline-none text-sm focus:border-transparent ${errosCampo.nome ? 'border-red-400 focus:ring-red-200' : 'border-slate-200'}`}
+                style={!errosCampo.nome ? { '--tw-ring-color': hotelConfig.corSecundaria } as React.CSSProperties : undefined}
               />
               {errosCampo.nome && <p className="text-red-500 text-[10px] mt-1.5 ml-1 font-medium">{errosCampo.nome}</p>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
               <div>
-                <label className="block text-[11px] sm:text-xs font-bold text-[#1B2A41] uppercase tracking-wide mb-2">E-mail</label>
+                <label className="block text-[11px] sm:text-xs font-bold text-[var(--color-primary)] uppercase tracking-wide mb-2">E-mail</label>
                 <input type="email" value={email} placeholder="voce@email.com" 
                   onChange={e => { setEmail(e.target.value); if (errosCampo.email) setErrosCampo(p => ({...p, email: ''})); }}
-                  className={`w-full px-4 py-3.5 bg-white border rounded-xl focus:ring-2 outline-none text-sm ${errosCampo.email ? 'border-red-400 focus:ring-red-200' : 'border-slate-200 focus:ring-[#8B1E32]/20'}`}
+                  className={`w-full px-4 py-3.5 bg-white border rounded-xl focus:ring-2 outline-none text-sm focus:border-transparent ${errosCampo.email ? 'border-red-400 focus:ring-red-200' : 'border-slate-200'}`}
+                  style={!errosCampo.email ? { '--tw-ring-color': hotelConfig.corSecundaria } as React.CSSProperties : undefined}
                 />
                 {errosCampo.email && <p className="text-red-500 text-[10px] mt-1.5 ml-1 font-medium">{errosCampo.email}</p>}
               </div>
               <div>
-                <label className="block text-[11px] sm:text-xs font-bold text-[#1B2A41] uppercase tracking-wide mb-2">WhatsApp</label>
+                <label className="block text-[11px] sm:text-xs font-bold text-[var(--color-primary)] uppercase tracking-wide mb-2">WhatsApp</label>
                 <input type="tel" maxLength={15} value={whatsapp} placeholder="(92) 99999-9999" 
                   onChange={e => { setWhatsapp(mascaraWhatsapp(e.target.value)); if (errosCampo.whatsapp) setErrosCampo(p => ({...p, whatsapp: ''})); }}
-                  className={`w-full px-4 py-3.5 bg-white border rounded-xl focus:ring-2 outline-none text-sm ${errosCampo.whatsapp ? 'border-red-400 focus:ring-red-200' : 'border-slate-200 focus:ring-[#8B1E32]/20'}`}
+                  className={`w-full px-4 py-3.5 bg-white border rounded-xl focus:ring-2 outline-none text-sm focus:border-transparent ${errosCampo.whatsapp ? 'border-red-400 focus:ring-red-200' : 'border-slate-200'}`}
+                  style={!errosCampo.whatsapp ? { '--tw-ring-color': hotelConfig.corSecundaria } as React.CSSProperties : undefined}
                 />
                 {errosCampo.whatsapp && <p className="text-red-500 text-[10px] mt-1.5 ml-1 font-medium">{errosCampo.whatsapp}</p>}
               </div>
@@ -201,13 +217,21 @@ export default function CheckoutClient({ slug }: CheckoutClientProps) {
 
             <div className="pt-2">
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" checked={aceitaOfertas} onChange={e => setAceitaOfertas(e.target.checked)} className="w-5 h-5 rounded border-slate-300 accent-[#8B1E32]" />
+                <input type="checkbox" checked={aceitaOfertas} onChange={e => setAceitaOfertas(e.target.checked)} 
+                  className="w-5 h-5 rounded border-slate-300"
+                  style={{ accentColor: hotelConfig.corSecundaria }} 
+                />
                 <span className="text-sm text-slate-600 select-none">Quero receber novidades e ofertas exclusivas por e-mail.</span>
               </label>
             </div>
 
             <div className="pt-6 mt-6 border-t border-slate-100 flex flex-col items-center">
-              <button type="submit" disabled={loading || qtdDiarias <= 0} className="w-full sm:w-auto min-w-[300px] bg-[#E05236] hover:bg-[#c24229] text-white font-bold py-3.5 sm:py-4 px-8 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm">
+              <button 
+                type="submit" 
+                disabled={loading || qtdDiarias <= 0} 
+                className="w-full sm:w-auto min-w-[300px] text-white font-bold py-3.5 sm:py-4 px-8 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm hover:opacity-90"
+                style={{ backgroundColor: hotelConfig.corSecundaria }}
+              >
                 {loading ? 'Processando...' : 'Continuar para verificação'} 
                 {!loading && <ArrowRight className="w-5 h-5" />}
               </button>

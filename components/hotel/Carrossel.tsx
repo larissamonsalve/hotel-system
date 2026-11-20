@@ -6,9 +6,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 interface CarrosselProps {
   children: React.ReactNode;
   autoPlay?: boolean;
+  corPrincipal?: string;
+  corSecundaria?: string;
 }
 
-export default function Carrossel({ children, autoPlay = true }: CarrosselProps) {
+export default function Carrossel({ children, autoPlay = true, corPrincipal = '#1B2A41', corSecundaria = '#8B1E32' }: CarrosselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -47,10 +49,19 @@ export default function Carrossel({ children, autoPlay = true }: CarrosselProps)
       onTouchStart={() => setIsHovered(true)}
       onTouchEnd={() => setIsHovered(false)}
     >
-      {/* Botão Voltar (Cores atualizadas com animação) */}
+      {/* Botão Voltar */}
       <button 
         onClick={() => scroll('left')} 
-        className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-[#8B1E32] text-[#1B2A41] hover:text-white p-3 md:p-4 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110"
+        className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 bg-white/95 p-3 md:p-4 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110"
+        style={{ color: corPrincipal }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = corSecundaria;
+          e.currentTarget.style.color = '#ffffff';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+          e.currentTarget.style.color = corPrincipal;
+        }}
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
@@ -63,10 +74,19 @@ export default function Carrossel({ children, autoPlay = true }: CarrosselProps)
         {children}
       </div>
 
-      {/* Botão Avançar (Cores atualizadas com animação) */}
+      {/* Botão Avançar */}
       <button 
         onClick={() => scroll('right')} 
-        className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-[#8B1E32] text-[#1B2A41] hover:text-white p-3 md:p-4 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110"
+        className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 bg-white/95 p-3 md:p-4 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110"
+        style={{ color: corPrincipal }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = corSecundaria;
+          e.currentTarget.style.color = '#ffffff';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+          e.currentTarget.style.color = corPrincipal;
+        }}
       >
         <ChevronRight className="w-6 h-6" />
       </button>
