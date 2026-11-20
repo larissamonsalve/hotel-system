@@ -56,6 +56,12 @@ model Hotel {
   ativo        Boolean       @default(true)
   telefone  String? 
   endereco  String?
+
+  logoUrl              String?
+  corPrincipal         String        @default("#1B2A41") // Cor base (Azul escuro)
+  corSecundaria        String        @default("#8B1E32") // Cor de destaque (Vermelho)
+  politicaCancelamento String?       @default("Até 7 dias antes do check-in")
+
   criadoEm     DateTime      @default(now())
   funcionarios Funcionario[]
   leads        Lead[]
@@ -115,6 +121,10 @@ model Quarto {
   capacidade  Int
   valorDiaria Decimal      @db.Decimal(10, 2)
   status      StatusQuarto @default(DISPONIVEL)
+
+  descricao   String?
+  imagemUrl   String?
+  
   reservas    Reserva[]
 
   @@unique([hotelId, numero])
