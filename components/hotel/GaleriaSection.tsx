@@ -35,7 +35,7 @@ export default function GaleriaSection({ hotelConfig }: GaleriaSectionProps) {
     { src: '/area-comum.avif', label: 'Área Comum' },
     { src: '/cafe_2.avif', label: 'Café da Manhã' },
     { src: '/piscina.webp', label: 'Piscina' },
-    { src: '/quarto-padrão.jpg', label: 'Acomodações' },
+    { src: '/quarto-padrao.jpg', label: 'Acomodações' },
   ];
   
   const duplicarArray = (arr: Foto[]) => [...arr, ...arr];
