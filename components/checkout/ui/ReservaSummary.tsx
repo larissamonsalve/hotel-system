@@ -42,7 +42,7 @@ export default function ReservaSummary({
       <h2 className="text-xl sm:text-2xl font-medium mb-5" style={{ color: hotelConfig.corPrincipal }}>Resumo da reserva</h2>
       
       <div className="relative w-full h-36 sm:h-48 rounded-xl overflow-hidden mb-5 bg-slate-100 border border-slate-100">
-        <Image src={imagemUrl || '/quarto-padrão.jpg'} alt={tipoQuarto} fill className="object-cover" />
+        <Image src={imagemUrl || '/quarto-padrao.jpg'} alt={tipoQuarto} fill className="object-cover" />
       </div>
 
       <div className="mb-6">

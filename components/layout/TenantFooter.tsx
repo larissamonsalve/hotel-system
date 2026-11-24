@@ -15,22 +15,29 @@ interface TenantFooterProps {
   telefone?: string | null;
   email?: string;
   endereco?: string | null;
-  hotelConfig?: HotelConfig; // Nova prop opcional para Multi-Tenant
+  hotelConfig?: HotelConfig;
+}
+
+function formatarNumeroWhatsapp(numero: string): string {
+  const apenasDigitos = numero.replace(/\D/g, '');
+  if (apenasDigitos.length === 10 || apenasDigitos.length === 11) {
+    return `55${apenasDigitos}`;
+  }
+  return apenasDigitos;
 }
 
 export default function TenantFooter({ 
   hotelNome, 
   logoSrc = '/logo-serpa.jpg',
-  telefone = '+55 (92) 3011-7217',
+  telefone = '+55 (92) 99473-7897',
   email = 'reservas@hotelserpa.com.br',
   endereco = 'R. Floriano Peixoto, 80, Colônia, Itacoatiara - AM',
   hotelConfig
 }: TenantFooterProps) {
   
-  // Prioriza o dado que vem do banco de dados; se não vier, usa os seus originais do Serpa
   const nomeReal = hotelConfig?.nome || hotelNome;
   const logoReal = hotelConfig?.logoUrl || logoSrc;
-  const telReal = hotelConfig?.telefone || telefone;
+  const telReal = hotelConfig ? hotelConfig.telefone : telefone;
   const endReal = hotelConfig?.endereco || endereco;
   
   const primaryColor = hotelConfig?.corPrincipal || '#1B2A41';
@@ -39,6 +46,11 @@ export default function TenantFooter({
   const primeiraPalavra = nomeReal.split(' ')[0];
   const restoDoNome = nomeReal.split(' ').slice(1).join(' ');
 
+  const mensagemWhatsapp = `Olá! Estava no site do ${nomeReal} e gostaria de tirar uma dúvida sobre hospedagem.`;
+  const whatsappUrl = telReal
+    ? `https://wa.me/${formatarNumeroWhatsapp(telReal)}?text=${encodeURIComponent(mensagemWhatsapp)}`
+    : null;
+
   return (
     <footer 
       id="contato" 
@@ -46,7 +58,6 @@ export default function TenantFooter({
       style={{ backgroundImage: `linear-gradient(to bottom, ${primaryColor}, #0a121c)` }}
     >
       
-      {/* Usamos a sua barra de gradiente mantendo a mesma estrutura visual */}
       <div 
         className="h-1.5 w-full"
         style={{ backgroundImage: `linear-gradient(to right, ${secondaryColor}, #a3273e, ${secondaryColor})` }}
@@ -84,9 +95,16 @@ export default function TenantFooter({
               <span className="w-3 md:w-4 h-1 rounded-full" style={{ backgroundColor: secondaryColor }}></span> Contato
             </h4>
             <div className="text-xs md:text-sm text-slate-300/90 space-y-2.5 md:space-y-3 flex flex-col">
-              <a href={`tel:${telReal?.replace(/\D/g,'')}`} className="hover:text-white hover:translate-x-1 transition-all duration-300 w-fit">
-                {telReal}
-              </a>
+              {telReal && whatsappUrl && (
+                <a 
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white hover:translate-x-1 transition-all duration-300 w-fit"
+                >
+                  {telReal}
+                </a>
+              )}
               <a href={`mailto:${email}`} className="hover:text-white hover:translate-x-1 transition-all duration-300 w-fit">
                 {email}
               </a>
