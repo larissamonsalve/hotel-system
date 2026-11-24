@@ -1,8 +1,8 @@
-# Hotel System - Plataforma de Gestão Hoteleira Multi-Tenant
+# Hotel System — Plataforma de Gestão Hoteleira Multi-Tenant
 
-Aplicação web full-stack desenvolvida em arquitetura **SaaS (Software as a Service) Multi-Tenant**. O sistema permite que múltiplos hotéis gerenciem suas operações de forma independente compartilhando a mesma infraestrutura, reduzindo custos e centralizando a manutenção.
+Aplicação web full-stack desenvolvida em arquitetura **SaaS (Software as a Service) Multi-Tenant** com suporte **White-Label**. O sistema permite que múltiplos hotéis gerenciem suas operações e identidades visuais de forma independente compartilhando a mesma infraestrutura, reduzindo custos operacionais e centralizando a manutenção.
 
-A plataforma abrange desde a captação de hóspedes e reservas online com pagamento de taxa de reserva (30%) e emissão automática de voucher em PDF, até o controle completo de recepção (check-in, check-out, walk-in), política de cancelamento (CDC) e auditoria financeira por estabelecimento.
+A plataforma abrange desde a captação de hóspedes, atendimento contextualizado e reservas online com pagamento de sinal (30%) e emissão automática de voucher em PDF, até o controle completo de recepção (check-in, check-out, walk-in), política de cancelamento (CDC) e auditoria financeira por estabelecimento.
 
 Projetado com foco rigoroso em segurança (*Zero Trust*), isolamento lógico de dados, rastreabilidade e automação de CI/CD.
 
@@ -10,174 +10,197 @@ Projetado com foco rigoroso em segurança (*Zero Trust*), isolamento lógico de 
 
 ## Índice
 
-1. [Acesso ao Sistema em Produção (Live Demo)](#-acesso-ao-sistema-em-produção-live-demo)
-2. [Arquitetura e Padrões de Projeto](#1-arquitetura-e-padrões-de-projeto)
-3. [Segurança e Proteção de Dados](#2-segurança-e-proteção-de-dados)
-4. [Perfis de Acesso e Regras de Negócio](#3-perfis-de-acesso-e-regras-de-negócio)
-5. [Tecnologias Utilizadas](#4-tecnologias-utilizadas)
-6. [Status do Projeto e Deploy](#5-status-do-projeto-e-deploy)
-7. [Pré-requisitos e Instalação](#6-pré-requisitos-e-instalação)
-8. [Integração Contínua (CI/CD)](#7-integração-contínua-cicd)
-9. [Documentação da API](#8-documentação-da-api)
+1. [Acesso ao Sistema em Produção (Live Demo)](#1-acesso-ao-sistema-em-produção-live-demo)
+2. [Arquitetura e Padrões de Projeto](#2-arquitetura-e-padrões-de-projeto)
+3. [Segurança e Proteção de Dados](#3-segurança-e-proteção-de-dados)
+4. [Perfis de Acesso e Regras de Negócio](#4-perfis-de-acesso-e-regras-de-negócio)
+5. [Tecnologias Utilizadas](#5-tecnologias-utilizadas)
+6. [Status do Projeto e Deploy](#6-status-do-projeto-e-deploy)
+7. [Pré-requisitos e Instalação](#7-pré-requisitos-e-instalação)
+8. [Testes e Qualidade de Código](#8-testes-e-qualidade-de-código)
+9. [Integração e Entrega Contínua (CI/CD)](#9-integração-e-entrega-contínua-cicd)
+10. [Documentação da API](#10-documentação-da-api)
 
 ---
 
-## 1. Arquitetura e Padrões de Projeto
+## 1. Acesso ao Sistema em Produção (Live Demo)
 
-O ecossistema foi construído visando alta escalabilidade e manutenção facilitada, adotando padrões da engenharia de software moderna:
+A aplicação está publicada na **Vercel** integrada ao **Supabase (PostgreSQL)**:
 
-- **Isolamento Multi-Tenant Lógico (Shared Database):** Todos os hotéis compartilham o mesmo banco PostgreSQL, porém os registros são rigidamente isolados em todas as queries pela chave estrangeira `hotelId`.
-- **Stateless Funnel (Funil sem Estado):** O fluxo de reserva (Escolha do Quarto → Captação do Lead → OTP) utiliza parâmetros de URL (`URLSearchParams`) para trafegar as escolhas do usuário de forma transitória e rápida, impedindo a criação de "Reservas Fantasmas" (Lixo de Banco) caso o usuário abandone o carrinho. A reserva só é persistida no banco após a validação de identidade.
-- **Component Composition (FSD / Atomic Design):** O frontend (React) separa estritamente a Regra de Negócio (Smart Components) da Interface Visual (Dumb Components), garantindo o *Single Responsibility Principle (SRP)*.
-- **Middleware de Roteamento (Edge):** Interceptação de requisições por sub-rotas dinâmicas (ex: `/h/serpa-hotel`), validando a existência do tenant e injetando o contexto de forma segura nos cabeçalhos HTTP (`x-tenant-slug`) para uso interno pelas APIs.
-- **Unit of Work:** Transações atômicas no Prisma (`$transaction`) garantem que operações complexas, como o Onboarding de novos hotéis, ocorram de forma íntegra (Tudo ou Nada).
+- **Tenant de Demonstração (Serpa Hotel):** [https://hotel-system-eosin-nine.vercel.app/h/hotel-serpa](https://hotel-system-eosin-nine.vercel.app/h/hotel-serpa)
 
 ---
 
-## 2. Segurança e Proteção de Dados
+## 2. Arquitetura e Padrões de Projeto
+
+O ecossistema foi construído visando alta escalabilidade e manutenção facilitada, adotando padrões modernos de engenharia de software:
+
+- **Isolamento Multi-Tenant Lógico (Shared Database):** Todos os hotéis compartilham o mesmo cluster PostgreSQL, porém os registros são rigidamente isolados em todas as consultas pela chave estrangeira `hotelId` e pelo identificador único `slug`.
+- **Motor White-Label Dinâmico:** Cada estabelecimento possui identidade visual própria carregada sob demanda via Server Components (`corPrincipal`, `corSecundaria`, `logoUrl`, `politicaCancelamento` e canais de atendimento), sem valores fixos (*hardcoded*) na interface.
+- **Stateless Funnel (Funil sem Estado):** O fluxo de reserva (`Escolha do Quarto → Captação do Lead → Validação OTP`) utiliza parâmetros de URL (`URLSearchParams`) para trafegar as escolhas do hóspede de forma transitória, impedindo a criação de "Reservas Fantasmas" no banco caso o carrinho seja abandonado. A reserva só é persistida após a validação de identidade.
+- **Component Composition (SRP):** O frontend em React separa estritamente a orquestração de estado e regras de negócio (*Smart Components*) da camada de apresentação (*UI Components*), respeitando o *Single Responsibility Principle*.
+- **Middleware de Roteamento (Edge):** Interceptação de requisições por sub-rotas dinâmicas (ex.: `/h/hotel-serpa`), validando o contexto do tenant e injetando cabeçalhos HTTP seguros (`x-tenant-slug`) para consumo interno pelas rotas de API.
+- **Unit of Work & Singleton ORM:** Uso de instância compartilhada do Prisma Client (prevenindo exaustão de conexões em ambiente *serverless*) e transações atômicas (`$transaction`) para garantir integridade em operações críticas.
+
+---
+
+## 3. Segurança e Proteção de Dados
 
 A plataforma adota a filosofia *Zero Trust*, protegendo tanto a aplicação quanto a infraestrutura:
 
-- **Next.js Security Headers:** Injeção nativa de headers restritos (HSTS, `X-Content-Type-Options`, `X-Frame-Options` e `X-XSS-Protection`) impedindo Clickjacking e mitigando injeções maliciosas.
-- **Prevenção contra Mass Assignment:** Uso da biblioteca **Zod** no modo `.strict()` na camada de DTOs, garantindo que nenhum payload modificado por invasores consiga sobrescrever campos restritos no banco de dados.
-- **Prevenção contra SQLi e XSS:** O ORM (Prisma) realiza o *statement binding* nativo contra SQL Injection, enquanto regex no schema Zod filtra caracteres nocivos, sanitizando dados de entrada no lado do cliente e do servidor.
-- **Rate Limiting (DoS Protection):** Middleware de controle de tráfego limita as requisições por IP nas rotas públicas (ex: Captação de Leads), mitigando ataques de força bruta e sobrecarga do banco.
-- **Information Disclosure Prevention:** Tratamento seguro de exceções (`try/catch`), garantindo que *stack traces* e metadados de infraestrutura jamais sejam devolvidos em erros HTTP (500) para os clientes.
+- **Next.js Security Headers:** Injeção nativa de cabeçalhos restritivos (HSTS, `X-Content-Type-Options`, `X-Frame-Options` e `X-XSS-Protection`), mitigando ataques de *Clickjacking* e injeção de conteúdo.
+- **Prevenção contra Mass Assignment:** Validação com **Zod** no modo `.strict()` na camada de DTOs, impedindo que payloads adulterados sobrescrevam colunas sensíveis ou restritas no banco de dados.
+- **Prevenção contra SQLi e XSS:** O Prisma ORM realiza *parameterized queries* nativas contra SQL Injection, enquanto expressões regulares nos schemas do Zod sanitizam entradas no cliente e no servidor.
+- **Rate Limiting (DoS Protection):** Controle de tráfego por IP nas rotas públicas (como captação de leads e disparo de códigos), mitigando força bruta e sobrecarga do banco.
+- **Information Disclosure Prevention:** Tratamento centralizado de exceções (`try/catch`), garantindo que *stack traces* e metadados internos jamais vazem em respostas HTTP `500`.
 
 ---
 
-## 3. Perfis de Acesso e Regras de Negócio
+## 4. Perfis de Acesso e Regras de Negócio
 
-O sistema é dividido em três atuações principais, encapsuladas por Tenant:
+O sistema é dividido em três camadas de atuação encapsuladas por Tenant:
 
-### 3.1. Cliente / Lead (Camada Pública)
-Focado no funil de conversão autônomo e de alta performance (`Landing Page → Lead → OTP → Pagamento → Voucher`):
-- **Simulação:** Cálculo em tempo real das diárias, indicando claramente a retenção de **30% como taxa de reserva** obrigatória.
-- **Validação de Identidade (OTP):** Cadastro validado via código numérico de 6 dígitos enviado por e-mail, gerido com prazo de expiração e limite de tentativas.
-- **Pagamento e Comprovante:** Transação digital segura. Apenas o Webhook autenticado pode consolidar a reserva e disparar o Voucher em PDF.
+### 4.1. Hóspede / Lead (Camada Pública)
+Focado em um funil de conversão autônomo e responsivo (`Landing Page → Checkout Lead → OTP → Pagamento → Voucher`):
+- **Simulação Transparente:** Cálculo em tempo real das diárias, destacando o sinal obrigatório de **30% como taxa de reserva** e os 70% restantes para o check-in.
+- **Atendimento Contextual (WhatsApp Multi-Tenant):** Canal direto com a recepção do hotel ativo tanto na vitrine quanto no checkout, com mensagens pré-preenchidas de acordo com a acomodação selecionada (ocultado automaticamente caso o tenant não utilize o canal).
+- **Validação de Identidade (OTP):** Verificação via código numérico de 6 dígitos enviado por e-mail, com tempo de expiração curto, armazenamento em hash e limite de tentativas.
+- **Pagamento e Voucher:** Consolidação exclusiva via Webhook autenticado, seguida da emissão automática do comprovante de reserva em PDF.
 
-### 3.2. Recepcionista (Camada Restrita — Operacional)
-- **Rastreabilidade Contínua:** Toda manipulação de reserva e transação financeira registra o `id` do funcionário logado no momento da ação.
-- **Check-in e Saldos:** Transição do status de reserva para `EM_ANDAMENTO`, mediante pagamento presencial do saldo de **70%**.
-- **Walk-in (Balcão):** Cadastro imediato e bloqueio de disponibilidade do quarto (anti-overbooking).
-- **Consumos e Check-out:** Lançamento de extras à conta do quarto e liquidação financeira final.
+### 4.2. Recepcionista (Camada Restrita — Operacional)
+- **Rastreabilidade Contínua:** Toda alteração de reserva ou lançamento financeiro vincula o `funcionarioId` responsável pela operação.
+- **Check-in e Liquidação de Saldo:** Transição do status da reserva para `EM_ANDAMENTO` mediante conferência e quitação presencial do saldo de **70%**.
+- **Walk-in (Balcão):** Criação imediata de hospedagem presencial com bloqueio instantâneo de disponibilidade (prevenção contra *overbooking*).
+- **Consumos e Check-out:** Registro de itens extras na conta da acomodação e fechamento contábil da estadia.
 
-### 3.3. Administrador / Gerente (Camada Restrita — Estratégica)
-- **Gestão Organizacional:** Controle de quartos, status, funcionários e configuração base do hotel.
-- **Auditoria de Funil:** Monitoramento analítico da conversão (Leads criados vs. Carrinhos Abandonados vs. Conversões Confirmadas).
-- **Conciliação Financeira:** Separação contábil exata entre Receita Online (Digital) e Receita Balcão.
+### 4.3. Administrador / Gerente (Camada Restrita — Estratégica)
+- **Gestão do Estabelecimento:** Administração de acomodações, tarifas, quadro de funcionários e parâmetros White-Label do hotel.
+- **Auditoria de Funil:** Acompanhamento da taxa de conversão (Leads captados vs. Abandonos vs. Reservas confirmadas).
+- **Conciliação Financeira:** Segregação clara entre Receita Digital (sinais online) e Receita Presencial (balcão e consumos).
 
 ---
 
-## 4. Tecnologias Utilizadas
+## 5. Tecnologias Utilizadas
 
 - **Core & Frontend:** React 19, Next.js 15 (App Router, Server Components), TypeScript, Tailwind CSS, Lucide React.
-- **Backend & Persistência:** Node.js (API Routes), PostgreSQL (Supabase), Prisma ORM (v6).
-- **Segurança & Validação:** Zod, Bcrypt (Hashes), Rate-Limit (Memória/Edge).
-- **Testes & Qualidade:** Jest, ESLint, TypeScript Strict Mode.
-- **Infraestrutura & Deploy:** Docker (Local), Vercel (Produção e Previews), GitHub Actions (CI/CD).
+- **Backend & Persistência:** Node.js (Next.js Route Handlers), PostgreSQL (Supabase), Prisma ORM (v6).
+- **Segurança & Validação:** Zod, Bcrypt (Hashes), Rate Limiting.
+- **Testes & Qualidade:** Jest, ESLint, TypeScript (`strict: true`).
+- **Infraestrutura & DevOps:** Docker & Docker Compose, Vercel, GitHub Actions.
 
 ---
 
-## 5. Status do Projeto e Deploy
+## 6. Status do Projeto e Deploy
 
-O sistema encontra-se com deploy contínuo integrado.
+O projeto opera em fluxo de entrega contínua com banco em nuvem no **Supabase** e hospedagem na **Vercel**:
 
-*   **Ambiente de Produção:** Hospedado na **Vercel** (Frontend e Middlewares) conectado ao banco **Supabase**.
-*   ✅ **Fase 1 (Concluída):** Infraestrutura, Schema do Banco de Dados (Multi-Tenant), Landing Page Responsiva e Captação de Lead com validação Zod (Client/Server).
-*   ⏳ **Fase 2 (Em andamento):** Rota de Verificação de Identidade (Sistema de OTP).
+- ✅ **Fase 1 (Concluída):** Infraestrutura, Modelagem Multi-Tenant no Prisma, Landing Page e Checkout White-Label, Captação de Leads com validação Zod (Client/Server) e Integração Contextual com WhatsApp.
+- ⏳ **Fase 2 (Em andamento):** Verificação de Identidade por E-mail (Geração, envio e validação de código OTP).
+- 📅 **Fase 3 (Planejada):** Integração de Pagamentos (Pix/Cartão via Webhook) e Emissão de Voucher em PDF.
+- 📅 **Fase 4 (Planejada):** Painel Operacional de Recepção e Dashboard Gerencial.
 
 ---
 
-## 6. Pré-requisitos e Instalação
+## 7. Pré-requisitos e Instalação
 
-*   [Node.js](https://nodejs.org/) (v20 ou superior)
-*   [Docker](https://www.docker.com/) e Docker Compose
-*   [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/) (v20 ou superior)
+- [Docker](https://www.docker.com/) com Docker Compose
+- [Git](https://git-scm.com/)
 
-### 6.1. Configuração do Ambiente (`.env`)
-Crie um arquivo `.env` na raiz do projeto (nunca versão este arquivo no Git):
+### 7.1. Variáveis de Ambiente (`.env`)
+Crie um arquivo `.env` na raiz do projeto (**nunca versione este arquivo no Git**):
 
 ```env
-# Banco de Dados (PostgreSQL - Supabase ou Local)
+# Banco de Dados Local (Docker)
+# Em produção (Supabase), use a porta 6543 (Pooler) na DATABASE_URL e a porta 5432 na DIRECT_URL
 DATABASE_URL="postgresql://postgres:senha_secreta@localhost:5432/hotel_system?schema=public"
 DIRECT_URL="postgresql://postgres:senha_secreta@localhost:5432/hotel_system?schema=public"
 
 # Segurança
 JWT_SECRET="chave_secreta_super_segura"
 
-# Integrações Futuras
+# Integrações de Pagamento e E-mail (Fases 2 e 3)
 NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY=""
 MERCADOPAGO_ACCESS_TOKEN=""
 MERCADOPAGO_WEBHOOK_SECRET=""
 ```
 
-### 6.2. Rodando o Projeto (Modo Desenvolvimento)
+### 7.2. Executando Localmente (Desenvolvimento)
 
 1. Clone o repositório e instale as dependências:
    ```bash
-   git clone https://github.com/larissamonsalve/hotel-system.git
+   git clone [https://github.com/larissamonsalve/hotel-system.git](https://github.com/larissamonsalve/hotel-system.git)
    cd hotel-system
    npm install
    ```
-2. Suba o Banco de Dados com Docker:
+2. Inicie o container do PostgreSQL:
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
-3. Gere o cliente Prisma e rode as migrações:
+3. Gere o cliente do Prisma, aplique as migrações e popule os dados iniciais (Seed):
    ```bash
    npx prisma generate
    npx prisma migrate dev
    npx prisma db seed
    ```
-4. Inicie o servidor:
+4. Inicie o servidor de desenvolvimento:
    ```bash
    npm run dev
    ```
+5. Acesse a vitrine do tenant inicial no navegador:
+   ```text
+   http://localhost:3000/h/hotel-serpa
+   ```
 
-*(Nota: Graças ao `output: 'standalone'` no `next.config.ts`, a aplicação também pode ser construída diretamente via Dockerfile para implantação on-premise).*
-
----
-
-## 7. Testes Automatizados e CI/CD
-
-O projeto utiliza **Jest** com suporte a tipagem nativa do Next.js. Os testes validam o isolamento Multi-Tenant injetando *mocks* do banco.
-
-* **Executar suíte de testes:** `npm run test`
-* **Verificar linting:** `npm run lint`
-
-O fluxo de **CI/CD** (GitHub Actions) bloqueia integrações na `main` caso as etapas de tipagem, testes unitários ou build falhem.
+*(Nota: Com `output: 'standalone'` configurado no `next.config.ts`, a aplicação também está pronta para empacotamento enxuto em imagem Docker para ambientes on-premise).*
 
 ---
 
-## 8. Integração Contínua (CI/CD)
+## 8. Testes e Qualidade de Código
 
-O repositório adota um fluxo de trabalho profissional (Trunk-based/Feature Branches):
-- **GitHub Actions (Linter & Tests):** Todo `Pull Request` passa por uma varredura rigorosa. O merge é **bloqueado** caso haja erros de tipagem (`any` implícitos, variáveis não utilizadas) ou quebra em testes automatizados.
-- **Vercel Preview Deploy:** A cada PR, a Vercel gera um ambiente de *Preview* descartável para homologação da Feature.
-- **Deploy Automático:** Ao confirmar o *Merge* para a branch `main`, a Vercel realiza o *build standalone* e envia a aplicação otimizada para produção.
+O projeto utiliza **Jest** com suporte nativo ao ecossistema Next.js/TypeScript. Os testes unitários validam regras de negócio, schemas Zod e o isolamento Multi-Tenant por meio de *mocks* da camada de persistência.
+
+- **Executar suíte de testes:**
+  ```bash
+  npm run test
+  ```
+- **Executar análise estática (ESLint):**
+  ```bash
+  npm run lint
+  ```
 
 ---
 
-## 9. Documentação da API
+## 9. Integração e Entrega Contínua (CI/CD)
+
+O repositório adota fluxo baseado em *Feature Branches* com validação automatizada antes de qualquer integração na branch `main`:
+
+- **GitHub Actions (Quality Gate):** Cada *Pull Request* dispara a checagem de lint, tipagem estrita do TypeScript, suíte de testes Jest e validação de build do Next.js/Prisma. Falhas em qualquer etapa bloqueiam o merge.
+- **Vercel Preview Deployments:** Todo PR recebe uma URL exclusiva de homologação conectada às variáveis seguras de Preview.
+- **Deploy Automatizado e Migrações:** Ao aprovar o merge na `main`, o pipeline executa `prisma generate && prisma migrate deploy && next build`, aplicando migrações pendentes de forma não destrutiva no Supabase antes de publicar a nova versão.
+
+---
+
+## 10. Documentação da API
 
 ### `POST /api/leads`
-Registra um lead na camada pública antes da validação OTP. Requer o Middleware Multi-Tenant ativo.
+Registra ou atualiza um lead na camada pública antes da etapa de validação OTP. Requer contexto de tenant válido.
 
-- **Headers:** 
+- **Headers:**
   - `Content-Type: application/json`
-  - `x-tenant-slug: hotel-serpa` *(Injetado e validado no Edge/Route)*
-- **Body:** 
+  - `x-tenant-slug: hotel-serpa` *(Injetado e validado pelo Middleware/Rota)*
+- **Body:**
   ```json
   {
-    "nome": "Maria da Silva", 
-    "email": "maria@email.com", 
+    "nome": "Maria da Silva",
+    "email": "maria@email.com",
     "whatsapp": "92999999999",
     "aceitaOfertas": true
   }
   ```
-- **Fluxo de Segurança Executado:** Rate Limiting ➔ Verificação de Tenant Ativo ➔ Zod Parsing (.strict) ➔ SQL Parameterization ➔ Omit Response (Information Disclosure Protection).
-- **Respostas:** 
-  - `201 Created`
-  - `400 Bad Request` (Zod Errors)
-  - `429 Too Many Requests`
+- **Pipeline de Segurança:** `Rate Limiting` ➔ `Verificação de Tenant Ativo` ➔ `Zod Parsing (.strict)` ➔ `SQL Parameterization` ➔ `Sanitized Response` (ocultação de metadados internos).
+- **Respostas HTTP:**
+  - `201 Created` — Lead registrado com sucesso.
+  - `400 Bad Request` — Falha na validação dos campos enviados.
+  - `404 Not Found` — Tenant inexistente ou inativo.
+  - `429 Too Many Requests` — Limite de requisições por IP excedido.
