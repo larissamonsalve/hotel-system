@@ -20,8 +20,7 @@ export default function DetalhesSection({ hotelConfig }: DetalhesSectionProps) {
   // Fallbacks de segurança
   const primaryColor = hotelConfig?.corPrincipal || '#1B2A41';
   const secondaryColor = hotelConfig?.corSecundaria || '#8B1E32';
-  const hotelNome = hotelConfig?.nome || 'O Hotel';
-
+  
   return (
     // Fundo do componente e iluminação dinamizados
     <section 
