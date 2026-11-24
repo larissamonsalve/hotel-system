@@ -5,7 +5,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Hotel SaaS System',
+  title: 'Hotel System',
   description: 'Plataforma de Gestão Hoteleira Multi-Tenant',
 };
 
