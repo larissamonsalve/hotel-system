@@ -12,7 +12,7 @@ async function main() {
     where: { slug: 'hotel-serpa' },
     update: {
       nome: 'Serpa Hotel',
-      telefone: '+55 (92) 3011-7217', 
+      telefone: '+55 (92) 99473-7897', 
       endereco: 'R. Floriano Peixoto, 80 (ou 223), Colônia, Itacoatiara - AM, CEP 69100-000',
       logoUrl: '/logo-serpa.jpg',
       corPrincipal: '#1B2A41',
@@ -23,7 +23,7 @@ async function main() {
       nome: 'Serpa Hotel',
       slug: 'hotel-serpa',
       cnpj: '26.649.508/0001-09', 
-      telefone: '+55 (92) 3011-7217',
+      telefone: '+55 (92) 99473-7897',
       endereco: 'R. Floriano Peixoto, 80 (ou 223), Colônia, Itacoatiara - AM, CEP 69100-000',
       logoUrl: '/logo-serpa.jpg',
       corPrincipal: '#1B2A41',
@@ -54,7 +54,7 @@ async function main() {
   console.log(`✅ Administrador [${admin.email}] verificado!`);
 
   const tiposDeQuartos = [
-    { tipo: 'Quarto Padrão', capacidade: 1, valorDiaria: 189.00, andar: 100, offset: 0, imagemUrl: '/quarto-padrão.jpg', descricao: 'Possui 1 cama de solteiro. Acomoda 1 pessoa.' }, // 101 a 105
+    { tipo: 'Quarto Padrão', capacidade: 1, valorDiaria: 189.00, andar: 100, offset: 0, imagemUrl: '/quarto-padrao.jpg', descricao: 'Possui 1 cama de solteiro. Acomoda 1 pessoa.' }, // 101 a 105
     { tipo: 'Quarto Duplo', capacidade: 2, valorDiaria: 249.00, andar: 100, offset: 5, imagemUrl: '/quarto-casal.jpg', descricao: 'Possui 2 camas de solteiro separadas no mesmo ambiente. Acomoda 2 hóspedes.' }, // 106 a 110
     
     { tipo: 'Quarto Casal', capacidade: 2, valorDiaria: 289.00, andar: 200, offset: 0, imagemUrl: '/quarto-casal.jpg', descricao: 'Possui 1 cama de casal (king-size), acomoda 2 hóspedes.' }, // 201 a 205
