@@ -134,6 +134,8 @@ model Reserva {
   id               String        @id @default(uuid())
   hotelId          String
   hotel            Hotel         @relation(fields: [hotelId], references: [id])
+  codigoLocalizador String?       @unique 
+  cpfMascarado      String?               
   origem           OrigemReserva
   status           StatusReserva @default(PENDENTE)
   leadId           String
@@ -165,7 +167,8 @@ model Pagamento {
   valor         Decimal         @db.Decimal(10, 2)
   tipo          TipoPagamento
   metodo        MetodoPagamento
-  referenciaExt String?
+  status        String          @default("PENDENTE") 
+  referenciaExt String?         @unique              
   criadoEm      DateTime        @default(now())
 }
 
