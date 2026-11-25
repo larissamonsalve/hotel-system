@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "postinstall": "prisma generate",
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "jest",
-    "postinstall": "prisma generate"
+    "test": "jest"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.6",
@@ -17,8 +17,10 @@
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.73.0",
+    "mercadopago": "^3.6.2",
     "next": "16.4.6",
     "nodemailer": "^10.6.1",
+    "pdf-lib": "^1.17.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-hook-form": "^7.92.0",
